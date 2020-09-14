@@ -34,7 +34,7 @@ library("phyloRNA")
 prepare_samples = function(
     bams, reference, annotation, vcf,
     obam=NULL, obar=NULL,
-    outdir=NULL, refdir=NULL
+    outdir=NULL, refdir=NULL,
     nthreads=16
     ){
 
@@ -132,7 +132,7 @@ prepare_sample = function(
     if(phyloRNA::is_nn(cleandir))
         cleandir = file.path(outdir, "clean")
 
-    core = phyloRNA::corename
+    core = phyloRNA::corename(bam)
 
     bam_aligned = filename(outdir, core, ".aligned.bam")
     bam_cleaned = filename(outdir, core, ".cleaned.bam")
@@ -197,7 +197,7 @@ filename = function(dir, core, ext){
     }
 
 
-merge_files(inputs, output, overwrite=FALSE){
+merge_files = function(inputs, output, overwrite=FALSE){
     if(file.exists(output) && overwrite) file.remove(output)
 
     file.append(output, inputs)
