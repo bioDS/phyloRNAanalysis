@@ -7,7 +7,8 @@
 #' * Expression analysis
 #' * Phylogenetic reconstruction
 
-
+install_github("biods/phyloRNA") # requires a github authentication token in .Renviron
+install_github("j-moravec/baffle")
 source("src/prepare.r")
 
 
