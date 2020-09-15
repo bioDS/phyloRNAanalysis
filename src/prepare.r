@@ -163,7 +163,7 @@ prepare_sample = function(
         # cfbm #TODO: copy barcode matrix? Do I need the whole folder or just the .h5 file?
         )
 
-    phyloRNA::prepare(
+    phyloRNA::gatk_prepare(
         input = bam_aligned,
         output = bam_cleaned,
         reference = reference,
