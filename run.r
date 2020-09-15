@@ -26,3 +26,5 @@ nthreads = 16
 # Preparation step:
 prepared = prepare_samples(bams, reference, annotation, vcf, nthreads=nthreads)
 
+# SNV detection step:
+alignment = detect_snv(prepared$bam, prepared$barcodes, reference)
