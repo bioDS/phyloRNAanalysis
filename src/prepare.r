@@ -172,15 +172,15 @@ prepare_sample = function(
         outdir = cleandir
         )
 
-    pattern = "-"
-    replace = paste0("-", dataset, "$")
+    pattern = "-1"
+    replace = paste0("-", core, "$")
 
     phyloRNA::bamtagregex(
         input = bam_cleaned,
         output = bam_prepared,
         tag = "CB",
-        pattern = "-1",
-        replace = paste0("-", dataset, "$")
+        pattern = pattern,
+        replace = replace
         )
 
     barcodes = readLines(barcodes_aligned)
