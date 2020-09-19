@@ -22,9 +22,13 @@ vcf = "/data/phylonco/ReferenceGenomes/vcf/00-common_all.vcf.gz"
 
 # Other settings:
 nthreads = 16
+chemistry = "SC5P-R2"
 
 # Preparation step:
-prepared = prepare_samples(bams, reference, annotation, vcf, nthreads=nthreads)
+prepared = prepare_samples(
+    bams, reference, annotation, vcf,
+    chemistry = chemistry,  nthreads=nthreads
+    )
 
 # SNV detection step:
 alignment = detect_snv(prepared$bam, prepared$barcodes, reference)

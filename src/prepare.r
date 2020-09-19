@@ -29,13 +29,14 @@ library("phyloRNA")
 #' @param vcf a known variants associated with the reference genome that will be masked
 #' @param outdir **optional** a general output directory
 #' @param refdir **optional** an output directory for the cellranger reference genome files
+#' @param chemistry **optiona** 10X chemistry, use only when the automatic detection is failing
 #' @param nthreads **optional** a number of threads to use
 #' @return a list with a paths to merged bam and barcode files.
 prepare_samples = function(
     bams, reference, annotation, vcf,
     obam=NULL, obar=NULL,
     outdir=NULL, refdir=NULL,
-    nthreads=16
+    chemistry="auto", nthreads=16
     ){
 
     if(phyloRNA::is_nn(outdir))
@@ -56,7 +57,7 @@ prepare_samples = function(
     if(file.exists(obam) && file.exists(obar))
         return(result)
 
-
+    results = list()
     for(bam in bams)
         results[[bam]] = prepare_sample(
             bam = bam,
@@ -65,6 +66,7 @@ prepare_samples = function(
             vcf = vcf,
             outdir = file.path(outdir, corename(bam)),
             refdir = refdir,
+            chemistry = chemistry,
             nthreads = nthreads
             )
 
@@ -117,11 +119,13 @@ prepare_samples = function(
 #' @param mapdir **optional** an output directory for the remapping step
 #' @param refdir **optional** an output directory for the cellranger reference genome files
 #' @param cleandir **optional** an output directory for GATK cleaning/preparation steps
+#' @param chemistry **optiona** 10X chemistry, use only when the automatic detection is failing
+#' @param nthreads **optional** a number of threads to use
 #' @return a list with a paths to prepared bam and barcode files.
 prepare_sample = function(
     bam, reference, annotation, vcf,
     outdir=NULL, mapdir=NULL, refdir=NULL, cleandir=NULL,
-    nthreads=16
+    chemistry = "auto", nthreads=16
     ){
     if(phyloRNA::is_nn(outdir))
         outdir = "prepare"
@@ -157,6 +161,7 @@ prepare_sample = function(
         annotation = annotation,
         outdir = mapdir,
         refdir = refdir,
+        chemistry = chemistry,
         nthreads = nthreads,
         cbam = bam_aligned,
         cbar = barcodes_aligned
