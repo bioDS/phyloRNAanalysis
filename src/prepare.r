@@ -75,7 +75,7 @@ prepare_samples = function(
     pbars = lapply(results, getElement, "barcodes")
     
     # Defensive programming: Sanity check that the corenames are exactly the same.
-    if(pcores != cores)
+    if(all(pcores != result$samples))
         stop("Corenames from samples differ from those in results. This shouldn't happen.")
 
     # merge prepared bams from all datasets:
