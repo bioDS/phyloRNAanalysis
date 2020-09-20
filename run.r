@@ -9,6 +9,10 @@
 
 devtools::install_github("biods/phyloRNA") # requires a github authentication token in .Renviron
 devtools::install_github("j-moravec/baffle")
+
+library("phyloRNA")
+library("baffle")
+
 source("src/prepare.r")
 
 
@@ -31,4 +35,5 @@ prepared = prepare_samples(
     )
 
 # SNV detection step:
-alignment = detect_snv(prepared$bam, prepared$barcodes, reference)
+phyloRNA::mkdir("snv")
+alignment = phyloRNA::gatk_snv(prepared$bam, reference, "all.snv", outdir=file.path("snv, snv"))
