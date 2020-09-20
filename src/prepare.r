@@ -70,9 +70,9 @@ prepare_samples = function(
             nthreads = nthreads
             )
 
-    pcores = lapply(results, getElement, "prefix")
-    pbams = lapply(results, getElement, "bam")
-    pbars = lapply(results, getElement, "barcodes")
+    pcores = unlist(lapply(results, getElement, "prefix"))
+    pbams = unlist(lapply(results, getElement, "bam"))
+    pbars = unlist(lapply(results, getElement, "barcodes"))
     
     # Defensive programming: Sanity check that the corenames are exactly the same.
     if(all(pcores != result$samples))
@@ -204,6 +204,5 @@ filename = function(dir, core, ext){
 
 merge_files = function(inputs, output, overwrite=FALSE){
     if(file.exists(output) && overwrite) file.remove(output)
-
     file.append(output, inputs)
     }
