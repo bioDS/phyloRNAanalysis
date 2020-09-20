@@ -177,8 +177,8 @@ prepare_sample = function(
         outdir = cleandir
         )
 
-    pattern = "-1"
-    replace = paste0("-", core, "$")
+    pattern = "-1$"
+    replace = paste0("-", core)
 
     phyloRNA::bamtagregex(
         input = bam_cleaned,
