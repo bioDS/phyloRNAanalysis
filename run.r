@@ -14,6 +14,7 @@ library("phyloRNA")
 library("baffle")
 
 source("src/prepare.r")
+source("src/snv.r")
 
 
 # datasets:
@@ -35,5 +36,5 @@ prepared = prepare_samples(
     )
 
 # SNV detection step:
-phyloRNA::mkdir("snv")
-alignment = phyloRNA::gatk_snv(prepared$bam, reference, "all.snv", outdir=file.path("snv, snv"))
+phyloRNA::mkdir("snv/all")
+alignment = detect_snv(prepared$bam, prepared$barcodes, reference, outdir=file.path("snv/all"))
