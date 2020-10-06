@@ -34,8 +34,8 @@ library("phyloRNA")
 #' @return a list with a paths to merged bam and barcode files.
 prepare_samples = function(
     bams, reference, annotation, vcf,
-    obam=NULL, obar=NULL,
-    outdir=NULL, refdir=NULL,
+    obam=NULL, obar=NULL, oh5=NULL,
+    outdir=NULL, refdir=NULL, exprdir=NULL,
     chemistry="auto", nthreads=16
     ){
 
@@ -43,18 +43,23 @@ prepare_samples = function(
         outdir = "prepare"
     if(phyloRNA::is_nn(refdir))
         refdir = file.path(outdir, "ref")
+    if(phyloRNA::is_nn(exprdir))
+        exprdir = file.path(outdir, "expr")
     if(phyloRNA::is_nn(obam))
         obam = file.path(outdir, "all.bam")
     if(phyloRNA::is_nn(obar))
         obar = file.path(outdir, "all.txt")
+    if(phyloRNA::is_nn(oh5))
+        oh5 = file.path(outdir, "all.h5")
 
     result = list(
         samples = corename(bams),
         bam = obam,
-        barcodes = obar
+        barcodes = obar,
+        oh5 = oh5
         )
 
-    if(file.exists(obam) && file.exists(obar))
+    if(file.exists(obam) && file.exists(obar) && file.exists(oh5))
         return(result)
 
     results = list()
@@ -73,7 +78,8 @@ prepare_samples = function(
     pcores = unlist(lapply(results, getElement, "prefix"))
     pbams = unlist(lapply(results, getElement, "bam"))
     pbars = unlist(lapply(results, getElement, "barcodes"))
-    
+    ph5s = unlist(lapply(results, getElement, "h5"))
+
     # Defensive programming: Sanity check that the corenames are exactly the same.
     if(all(pcores != result$samples))
         stop("Corenames from samples differ from those in results. This shouldn't happen.")
@@ -81,8 +87,11 @@ prepare_samples = function(
     # merge prepared bams from all datasets:
     phyloRNA::gatk_MergeSamFiles(pbams, obam)
 
-    # mere prepared barcodes from all datasets:
+    # merge prepared barcodes from all datasets:
     merge_files(pbars, obar, overwrite=TRUE)
+
+    # merge h5 matrices from all datasets:
+    merge_h5(ph5s, oh5)
 
     return(result)
     }
@@ -124,7 +133,7 @@ prepare_samples = function(
 #' @return a list with a paths to prepared bam and barcode files.
 prepare_sample = function(
     bam, reference, annotation, vcf,
-    outdir=NULL, mapdir=NULL, refdir=NULL, cleandir=NULL,
+    outdir=NULL, mapdir=NULL, refdir=NULL, cleandir=NULL, expdir=NULL,
     chemistry = "auto", nthreads=16
     ){
     if(phyloRNA::is_nn(outdir))
@@ -145,14 +154,17 @@ prepare_sample = function(
     barcodes_aligned = filename(outdir, core, ".aligned.txt")
     barcodes_prepared = filename(outdir, core, ".prepared.txt")
 
+    h5_prepared = filename(outdir, core, ".h5")
+
     result = list(
         prefix = core,
         bam = bam_prepared,
         barcodes = barcodes_prepared
+        h5 = h5_prepared
         )
 
     # Skip if the final output files already exist
-    if(file.exists(result$bam) && file.exists(result$barcodes))
+    if(file.exists(result$bam) && file.exists(result$barcodes && result$h5))
         return(result)
 
     phyloRNA::remap(
@@ -163,9 +175,9 @@ prepare_sample = function(
         refdir = refdir,
         chemistry = chemistry,
         nthreads = nthreads,
-        cbam = bam_aligned,
-        cbar = barcodes_aligned
-        # cfbm #TODO: copy barcode matrix? Do I need the whole folder or just the .h5 file?
+        copy_bam = bam_aligned,
+        copy_bar = barcodes_aligned,
+        copy_h5 = h5_prepared
         )
 
     phyloRNA::gatk_prepare(
@@ -192,7 +204,6 @@ prepare_sample = function(
     barcodes = sub(pattern, replace, barcodes)
     writeLines(barcodes, barcodes_prepared)
 
-
     return(result)
     }
 
@@ -205,4 +216,11 @@ filename = function(dir, core, ext){
 merge_files = function(inputs, output, overwrite=FALSE){
     if(file.exists(output) && overwrite) file.remove(output)
     file.append(output, inputs)
+    }
+
+
+merge_h5 = function(inputs, output){
+    data = lapply(inputs, phyloRNA::expr_read10xh5)
+    names = phyloRNA::corenames(inputs)
+    data = phyloRNA::expr_merge(data, names)
     }
