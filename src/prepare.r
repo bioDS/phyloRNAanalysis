@@ -35,7 +35,7 @@ library("phyloRNA")
 prepare_samples = function(
     bams, reference, annotation, vcf,
     obam=NULL, obar=NULL, oh5=NULL,
-    outdir=NULL, refdir=NULL, exprdir=NULL,
+    outdir=NULL, refdir=NULL,
     chemistry="auto", nthreads=16
     ){
 
@@ -50,7 +50,7 @@ prepare_samples = function(
     if(phyloRNA::is_nn(obar))
         obar = file.path(outdir, "all.txt")
     if(phyloRNA::is_nn(oh5))
-        oh5 = file.path(outdir, "all.h5")
+        oh5 = file.path(outdir, paste0(corename(bams), ".h5"))
 
     result = list(
         samples = corename(bams),
@@ -59,7 +59,7 @@ prepare_samples = function(
         oh5 = oh5
         )
 
-    if(file.exists(obam) && file.exists(obar) && file.exists(oh5))
+    if(file.exists(obam) && file.exists(obar) && all(file.exists(oh5)))
         return(result)
 
     results = list()
@@ -89,9 +89,6 @@ prepare_samples = function(
 
     # merge prepared barcodes from all datasets:
     merge_files(pbars, obar, overwrite=TRUE)
-
-    # merge h5 matrices from all datasets:
-    merge_h5(ph5s, oh5)
 
     return(result)
     }
@@ -133,7 +130,7 @@ prepare_samples = function(
 #' @return a list with a paths to prepared bam and barcode files.
 prepare_sample = function(
     bam, reference, annotation, vcf,
-    outdir=NULL, mapdir=NULL, refdir=NULL, cleandir=NULL, expdir=NULL,
+    outdir=NULL, mapdir=NULL, refdir=NULL, cleandir=NULL,
     chemistry = "auto", nthreads=16
     ){
     if(phyloRNA::is_nn(outdir))
@@ -164,7 +161,7 @@ prepare_sample = function(
         )
 
     # Skip if the final output files already exist
-    if(file.exists(result$bam) && file.exists(result$barcodes && result$h5))
+    if(file.exists(result$bam) && file.exists(result$barcodes) && file.exists(result$h5))
         return(result)
 
     phyloRNA::remap(
@@ -220,6 +217,8 @@ merge_files = function(inputs, output, overwrite=FALSE){
 
 
 merge_h5 = function(inputs, output){
+    # well, I can read, merge them, but then not save in the same h5 format.
+    # I would need to write a function for that.
     data = lapply(inputs, phyloRNA::expr_read10xh5)
     names = phyloRNA::corenames(inputs)
     data = phyloRNA::expr_merge(data, names)

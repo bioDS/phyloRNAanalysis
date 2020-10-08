@@ -48,7 +48,8 @@ source("src/snv.r")
 
 
 # datasets:
-bams = dir("data", full.names=TRUE)
+bam_all = dir("data", full.names=TRUE)
+bam_2HR = file.path("data", "2HR.bam")
 
 # required reference files:
 reference = "/data/phylonco/ReferenceGenomes/human_GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
@@ -58,15 +59,67 @@ vcf = "/data/phylonco/ReferenceGenomes/vcf/00-common_all.vcf.gz"
 # Other settings:
 nthreads = 16
 chemistry = "SC5P-R2"
-
+densities = c(0.2, 0.5, 0.9)
+hdi = c(0.6, 0.9)
 
 # Preparation step:
-prepared = prepare_samples(
-    bams, reference, annotation, vcf,
-    chemistry = chemistry,  nthreads=nthreads
+prepared_all = prepare_samples(
+    bam_all, reference, annotation, vcf,
+    chemistry=chemistry, nthreads=nthreads
+    )
+prepared_2HR = prepare_sample(
+    bam_2HR, reference, annotation, vcf,
+    outdir = file.path("prepare", "2HR"),
+    chemistry=chemistry, nthreads=nthreads,
+# Prepare external data
+
+
+# Expression step:
+## all samples, no quality filtering
+outdir = file.path("expr", "all", "no_quality")
+phyloRNA::mkdir(outdir)
+expr_process(
+    file=prepare_all$h5, names=phyloRNA::corename(prepare_all$h5)
+    dens=densities, hdi=hdi,
+    mingGene=0, minUMI=0,
+    outdir=outdir, name="all",
+    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
     )
 
+## all samples, quality filtering
+outdir = file.path("expr", "all", "quality")
+phyloRNA::mkdir(outdir)
+expr_process(
+    file=prepare_all$h5, names=phyloRNA::corename(prepare_all$h5)
+    dens=densities, hdi=hdi,
+    mingGene=250, minUMI=300,
+    outdir=outdir, name="all.quality",
+    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
+    )
+
+## 2HR, no quality filtering
+outdir = file.path("expr", "2HR", "no_quality")
+phyloRNA::mkdir(outdir)
+expr_process(
+    file=prepare_2HR$h5,
+    dens=densities, hdi=hdi,
+    mingGene=0, minUMI=0,
+    outdir=outdir, name="2HR",
+    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
+    )
+## 2HR, quality filtering
+outdir = file.path("expr", "2HR", "quality")
+phyloRNA::mkdir(outdir)
+expr_process(
+    file=prepare_2HR$h5,
+    dens=densities, hdi=hdi,
+    mingGene=250, minUMI=300,
+    outdir=outdir, name="2HR.quality",
+    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
+    )
+
+
 # SNV detection step:
-phyloRNA::mkdir("snv/all")
-filtered_barcodes = "snv/all/all.barcodes.filtered.txt" # filtered barcodes to save time
-alignment = detect_snv(prepared$bam, filtered_barcodes, reference, outdir=file.path("snv/all"))
+detect_snv(prepared_all$bam, prepared_all$barcodes, reference, outdir=file.path("snv", "all"))
+
+detect_snv(prepared_2HR$bam, prepared_2HR$barcodes, reference, outdir=file.path("snv", "2HR"))
