@@ -2,6 +2,7 @@
 #'
 #' Functions for snv identification and filtering
 library("phyloRNA")
+library("data.table")
 
 #' Detect SNV for scRNAseq
 #'
@@ -37,5 +38,42 @@ detect_snv = function(bam, barcodes, reference, outdir=NULL, vcfdir=NULL, vcm=NU
     phyloRNA::gatk_snv(bam, reference, vcf, vcfdir)
     phyloRNA::vcm(bam, vcf, barcodes, output=vcm, nthreads=nthreads)
 
-    vcm
+    invisible(vcm)
+    }
+
+#' Filter the VCM table
+#'
+#' Find a densest subset of the SNV data contained in the vcm table.
+#'
+#' @param vcm a vcm file
+#' @param density a vector of the required density or densities
+#' @param outdir **optional** an output directory
+#' @param prefix **optional** a file prefix
+vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
+    if(is.null(outdir))
+        outdir = "."
+    if(is.null(prefix))
+        prefix = "data"
+
+    result = list(
+        filtered = file.path(outdir, paste(prefix, "filtered", num2char(dens), "txt", sep=".")),
+        fasta = filepath(outdir, paste(prefix, "filtered", num2char(dens), "fasta", sep="."))
+        )
+
+    if(all.files.exists(result))
+        return(invisible(result))
+
+    # using data.table due to a huge size of the dataset
+    data = data.table::fread(vcm, header=TRUE)
+    data = data[,-c(1:3)] # first three columns are not cells (chromosome, position and reference)
+    
+    for(i in seq_along(density)){
+        dens = density[i]
+        filtered = phyloRNA::densest_subset(data, empty="N", steps=0, density=dens)$result
+        filtered = phyloRNA::remove_constant(filtered, margin=1)
+        write_table(filtered, result$filtered[i])
+        fasta = phyloRNA::fasta(filtered, file=result$fasta[i])
+        }
+
+    return(invisible(result))
     }
