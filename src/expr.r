@@ -32,26 +32,28 @@ expr_process = function(
     ){
     if(is.null(outdir))
         outdir = "."
-    if(is.null(name))
+    if(is.null(prefix))
         prefix = "data"
 
+    result = list(
+        intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
+        discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep=".")),
+        filtered = file.path(outdir, paste(prefix, "filtered", num2char(dens), "txt", sep=".")),
+        fasta = file.path(outdir, paste(prefix, "filtered", num2char(dens), "fasta", sep="."))
+        )
+
+    if(all.files.exists(result))
+        return(invisible(result))
+
+
     if(length(file) > 1){
-        names = corenames(file)
+        names = phyloRNA::corename(file)
         data = lapply(file, phyloRNA::expr_read10xh5)
         data = phyloRNA::expr_merge(data, names)
         } else {
         data = phyloRNA::expr_read10xh5(file)
         }
 
-    result = list(
-        intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
-        discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep=".")),
-        filtered = file.path(outdir, paste(prefix, "filtered", num2char(dens), "txt", sep=".")),
-        fasta = file.path(outdir, paste(prefix, "filtered", num2char(dens), "fasta", sep=".")),
-        )
-
-    if(all.file.exist(result))
-        return(invisible(result))
 
     if(minGene > 0 && minUMI > 0)
         data = phyloRNA::expr_quality_filter(data, minGene=minGene, minUMI=minUMI)
@@ -120,6 +122,6 @@ num2char = function(x){
 #'
 #' @param files a list of files.
 #' @return a logical value indicating if all files exists.
-all.files.exists(x){
+all.files.exists = function(x){
     all(file.exists(unlist(x)))
     }

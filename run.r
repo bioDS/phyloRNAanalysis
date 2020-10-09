@@ -82,7 +82,7 @@ expr_all = expr_process(
     file=prepared_all$h5,
     dens=densities, hdi=hdi,
     minGene=0, minUMI=0,
-    outdir=outdir, prefix="all",
+    outdir=outdir, prefix="all"
     )
 ## all samples, quality filtering
 outdir = file.path("expr", "all", "quality")
@@ -91,7 +91,7 @@ expr_all_quality = expr_process(
     file=prepared_all$h5,
     dens=densities, hdi=hdi,
     minGene=250, minUMI=300,
-    outdir=outdir, prefix="all.quality",
+    outdir=outdir, prefix="all.quality"
     )
 
 
@@ -102,7 +102,7 @@ expr_2HR = expr_process(
     file=prepared_2HR$h5,
     dens=densities, hdi=hdi,
     minGene=0, minUMI=0,
-    outdir=outdir, prefix="2HR",
+    outdir=outdir, prefix="2HR"
     )
 ## 2HR, quality filtering
 outdir = file.path("expr", "2HR", "quality")
@@ -111,7 +111,7 @@ expr_2HR_quality = expr_process(
     file=prepared_2HR$h5,
     dens=densities, hdi=hdi,
     minGene=250, minUMI=300,
-    outdir=outdir, prefix="2HR.quality",
+    outdir=outdir, prefix="2HR.quality"
     )
 
 
