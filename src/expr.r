@@ -15,51 +15,43 @@
 #' to a chosen density
 #' * `phyloRNA::fasta()` -- transform to FASTA sequence
 #'
-#' @param data a loaded expression count matrix or list of such matrices
 #' @param file a path to a expression count matrix stored in a .h5 file
 #' or list of such paths
-#' @param names **optional** if a list of files/matrices is provided, names of the datasets
-#' can be specified
 #' @param dens **optional** required density or densities of the final matrix
+#' @param hdi **optional** a highest density intervals for discretization
 #' @param minGene **optional** minimum number of genes per cell
 #' @param minUMI **optional** minimum number of UMI per cell
 #' @param outdir **optional** an output directory
-#' @param name **optional** a prefix for file names
-#' @param save_intervals **optional** save the discretization intervals
-#' @param save_discretized **optional** save the discretized matrix
-#' @param save_filtered **optional** save the filtered matrix or matrices
-#' @param save_fasta **optional** save the fasta sequence or sequences
+#' @param prefix **optional** a prefix for file names
 #'
 #' @return a list of paths of all outputs
 expr_process = function(
-    data=NULL, file=NULL, names=NULL,
-    dens=0.5, minGene=250, minUMI=500,
-    hdi=c(0.6,0.9), outdir=NULL, name=NULL,
-    save_intervals=FALSE, save_discretized=FALSE,
-    save_filtered=FALSE, save_fasta=FALSE
+    file=NULL, dens=0.5, hdi=c(0.6,0.9),
+    minGene=250, minUMI=500,
+    outdir=NULL, prefix=NULL
     ){
-    if(is.null(data) && is.null(file))
-        stop("Either data or file need to be specified!")
-    if(!is.null(data) && !is.null(file))
-        stop("Only data or file need to be specified, not both!")
-
     if(is.null(outdir))
         outdir = "."
     if(is.null(name))
-        name = "data"
+        prefix = "data"
 
-    if(!is.null(file)){
-        if(length(file) > 1){
-            data = lapply(file, phyloRNA::expr_read10xh5)
-            } else {
-            data = phyloRNA::expr_read10xh5(file)
-            }
-        }
-
-
-    if(is.list(data) && length(data) > 1){
+    if(length(file) > 1){
+        names = corenames(file)
+        data = lapply(file, phyloRNA::expr_read10xh5)
         data = phyloRNA::expr_merge(data, names)
+        } else {
+        data = phyloRNA::expr_read10xh5(file)
         }
+
+    result = list(
+        intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
+        discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep=".")),
+        filtered = file.path(outdir, paste(prefix, "filtered", num2char(dens), "txt", sep=".")),
+        fasta = file.path(outdir, paste(prefix, "filtered", num2char(dens), "fasta", sep=".")),
+        )
+
+    if(all.file.exist(result))
+        return(invisible(result))
 
     if(minGene > 0 && minUMI > 0)
         data = phyloRNA::expr_quality_filter(data, minGene=minGene, minUMI=minUMI)
@@ -67,30 +59,20 @@ expr_process = function(
     data = phyloRNA::expr_normalize(data)
     data = phyloRNA::expr_scale(data)
 
-    if(isTRUE(save_intervals))
-        save_intervals = file.path(outdir, paste(name, "intervals", "txt", sep="."))
-
-    intervals = calculate_intervals(data, density=hdi, save=save_intervals)
+    intervals = calculate_intervals(data, density=hdi, save=result$intervals)
     discr = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
+    write.table(discr, result$discretized)
 
-    if(isTRUE(save_discretized))
-        save_discretized = file.path(outdir, paste(name, "discretized", "txt", sep="."))
-    if(is.character(save_discretized))
-        write.table(discr, save_discretized)
+    for(i in seq_along(dens)){
+        density = dens[i]
+        filtered = phyloRNA::densest_subset(discr, empty="-", steps=10000, density=density)$result
+        filtered = phyloRNA::remove_constant(filtered, margin=1)
+        write_table(filtered, result$filtered[i])
 
-    fasta = list()
-    for(density in dens){
-        fasta[[as.character(density)]] = densest_fasta(
-            discr, density, name=name, outdir=outdir,
-            save_filtered = save_filtered,
-            save_fasta = save_fasta
-            )
+        fasta = phyloRNA::fasta(filtered, file=result$fasta[i])
         }
 
-    if(length(fasta) == 1)
-        fasta = fasta[[1]]
-
-    return(invisible(fasta))
+    return(invisible(result))
     }
 
 
@@ -107,6 +89,8 @@ calculate_intervals = function(data, density=c(0.6,0.9), save=FALSE){
     dens = stats::density(data, na.rm=TRUE)
 
     intervals = lapply(density, function(x) phyloRNA::hdi(dens, 1-x))
+    names(intervals) = as.character(density)
+
     if(isTRUE(save))
         save = "intervals.txt"
     if(is.character(save))
@@ -125,40 +109,17 @@ write_table = function(x, file){
     }
 
 
-#' Filter dataset and return a fasta
-#'
-#' @param data a data table
-#' @param density a requested density of fasta
-#' @param outdir **optional** a general output directory
-#' @param name **optional** a prefix for output files
-#' @param save_filtered **optional** TRUE or an output path for filtered table
-#' @param save_fasta **optional** TRUE or path for filtered fasta file
-#' @return sequences in a fasta format
-densest_fasta = function(
-        data, density=0.5,
-        outdir=NULL, name=NULL,
-        save_filtered=FALSE, save_fasta=FALSE
-        ){
-        if(is.null(outdir))
-            outdir = "."
-        if(is.null(name))
-            name = "filtered"
-
-        filtered = phyloRNA::densest_subset(data, empty="-", steps=10000, density=density)$result
-        filtered = phyloRNA::remove_constant(filtered, margin=1)
-
-        if(isTRUE(save_filtered))
-            save_filtered = file.path(outdir, paste(name, num2char(density), "txt", sep="."))
-        if(is.character(save_filtered))
-            write_table(filtered, save_filtered)
-        if(isTRUE(save_fasta))
-            save_fasta = file.path(outdir, paste(name, num2char(density), "fasta", sep="."))
-
-        fasta = phyloRNA::fasta(filtered, file=save_fasta)
-        return(fasta)
-        }
-
-
 num2char = function(x){
     sub(".", "", as.character(x), fixed=TRUE)
+    }
+
+
+#' Check existence of files
+#'
+#' This function checks the existence of all files stored in a list.
+#'
+#' @param files a list of files.
+#' @return a logical value indicating if all files exists.
+all.files.exists(x){
+    all(file.exists(unlist(x)))
     }

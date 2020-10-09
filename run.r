@@ -78,44 +78,40 @@ prepared_2HR = prepare_sample(
 ## all samples, no quality filtering
 outdir = file.path("expr", "all", "no_quality")
 phyloRNA::mkdir(outdir)
-expr_process(
-    file=prepared_all$h5, names=phyloRNA::corename(prepared_all$h5),
+expr_all = expr_process(
+    file=prepared_all$h5,
     dens=densities, hdi=hdi,
     minGene=0, minUMI=0,
-    outdir=outdir, name="all",
-    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
+    outdir=outdir, prefix="all",
     )
 ## all samples, quality filtering
 outdir = file.path("expr", "all", "quality")
 phyloRNA::mkdir(outdir)
-expr_process(
-    file=prepared_all$h5, names=phyloRNA::corename(prepared_all$h5),
+expr_all_quality = expr_process(
+    file=prepared_all$h5,
     dens=densities, hdi=hdi,
     minGene=250, minUMI=300,
-    outdir=outdir, name="all.quality",
-    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
+    outdir=outdir, prefix="all.quality",
     )
 
 
 ## 2HR, no quality filtering
 outdir = file.path("expr", "2HR", "no_quality")
 phyloRNA::mkdir(outdir)
-expr_process(
+expr_2HR = expr_process(
     file=prepared_2HR$h5,
     dens=densities, hdi=hdi,
     minGene=0, minUMI=0,
-    outdir=outdir, name="2HR",
-    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
+    outdir=outdir, prefix="2HR",
     )
 ## 2HR, quality filtering
 outdir = file.path("expr", "2HR", "quality")
 phyloRNA::mkdir(outdir)
-expr_process(
+expr_2HR_quality = expr_process(
     file=prepared_2HR$h5,
     dens=densities, hdi=hdi,
     minGene=250, minUMI=300,
-    outdir=outdir, name="2HR.quality",
-    save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
+    outdir=outdir, prefix="2HR.quality",
     )
 
 
