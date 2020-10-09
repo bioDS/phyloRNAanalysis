@@ -68,7 +68,7 @@ expr_process = function(
     for(i in seq_along(dens)){
         density = dens[i]
         filtered = phyloRNA::densest_subset(discr, empty="-", steps=10000, density=density)$result
-        filtered = phyloRNA::remove_constant(filtered, margin=1)
+        filtered = phyloRNA::remove_constant(filtered, margin=1, unknown="-")
         write_table(filtered, result$filtered[i])
 
         fasta = phyloRNA::fasta(filtered, file=result$fasta[i])
