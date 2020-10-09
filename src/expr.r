@@ -68,7 +68,7 @@ expr_process = function(
     data = phyloRNA::expr_scale(data)
 
     if(isTRUE(save_intervals))
-        save_intervals = file.path(outdir, paste(name, "intervals", txt, sep="."))
+        save_intervals = file.path(outdir, paste(name, "intervals", "txt", sep="."))
 
     intervals = calculate_intervals(data, density=hdi, save=save_intervals)
     discr = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
@@ -80,8 +80,8 @@ expr_process = function(
 
     fasta = list()
     for(density in dens){
-        fasta[[density]] = densest_fasta(
-            discr, density, name=name,
+        fasta[[as.character(density)]] = densest_fasta(
+            discr, density, name=name, outdir=outdir,
             save_filtered = save_filtered,
             save_fasta = save_fasta
             )
@@ -90,8 +90,9 @@ expr_process = function(
     if(length(fasta) == 1)
         fasta = fasta[[1]]
 
-    return(fasta)
+    return(invisible(fasta))
     }
+
 
 #' Calculate discretization intervals from data
 #'
@@ -143,7 +144,7 @@ densest_fasta = function(
         if(is.null(name))
             name = "filtered"
 
-        filtered = phyloRNA::densest_subset(data, empty="-", steps=10000, density=dens)$result
+        filtered = phyloRNA::densest_subset(data, empty="-", steps=10000, density=density)$result
         filtered = phyloRNA::remove_constant(filtered, margin=1)
 
         if(isTRUE(save_filtered))

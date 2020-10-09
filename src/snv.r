@@ -37,5 +37,5 @@ detect_snv = function(bam, barcodes, reference, outdir=NULL, vcfdir=NULL, vcm=NU
     phyloRNA::gatk_snv(bam, reference, vcf, vcfdir)
     phyloRNA::vcm(bam, vcf, barcodes, output=vcm, nthreads=nthreads)
 
-    alignment
+    vcm
     }

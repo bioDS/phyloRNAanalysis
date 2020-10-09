@@ -43,20 +43,18 @@ prepare_samples = function(
         outdir = "prepare"
     if(phyloRNA::is_nn(refdir))
         refdir = file.path(outdir, "ref")
-    if(phyloRNA::is_nn(exprdir))
-        exprdir = file.path(outdir, "expr")
     if(phyloRNA::is_nn(obam))
         obam = file.path(outdir, "all.bam")
     if(phyloRNA::is_nn(obar))
         obar = file.path(outdir, "all.txt")
     if(phyloRNA::is_nn(oh5))
-        oh5 = file.path(outdir, paste0(corename(bams), ".h5"))
+        oh5 = file.path(outdir, corename(bams), paste0(corename(bams), ".h5"))
 
     result = list(
         samples = corename(bams),
         bam = obam,
         barcodes = obar,
-        oh5 = oh5
+        h5 = oh5
         )
 
     if(file.exists(obam) && file.exists(obar) && all(file.exists(oh5)))
@@ -156,7 +154,7 @@ prepare_sample = function(
     result = list(
         prefix = core,
         bam = bam_prepared,
-        barcodes = barcodes_prepared
+        barcodes = barcodes_prepared,
         h5 = h5_prepared
         )
 

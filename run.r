@@ -38,8 +38,8 @@ library("baffle")
 library("beter")
 
 source("src/prepare.r")
+source("src/expr.r")
 source("src/snv.r")
-
 
 # TODO:
 # * define datasets
@@ -70,40 +70,40 @@ prepared_all = prepare_samples(
 prepared_2HR = prepare_sample(
     bam_2HR, reference, annotation, vcf,
     outdir = file.path("prepare", "2HR"),
-    chemistry=chemistry, nthreads=nthreads,
+    chemistry=chemistry, nthreads=nthreads
+    )
 # Prepare external data
-
 
 # Expression step:
 ## all samples, no quality filtering
 outdir = file.path("expr", "all", "no_quality")
 phyloRNA::mkdir(outdir)
 expr_process(
-    file=prepare_all$h5, names=phyloRNA::corename(prepare_all$h5)
+    file=prepared_all$h5, names=phyloRNA::corename(prepared_all$h5),
     dens=densities, hdi=hdi,
-    mingGene=0, minUMI=0,
+    minGene=0, minUMI=0,
     outdir=outdir, name="all",
     save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
     )
-
 ## all samples, quality filtering
 outdir = file.path("expr", "all", "quality")
 phyloRNA::mkdir(outdir)
 expr_process(
-    file=prepare_all$h5, names=phyloRNA::corename(prepare_all$h5)
+    file=prepared_all$h5, names=phyloRNA::corename(prepared_all$h5),
     dens=densities, hdi=hdi,
-    mingGene=250, minUMI=300,
+    minGene=250, minUMI=300,
     outdir=outdir, name="all.quality",
     save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
     )
+
 
 ## 2HR, no quality filtering
 outdir = file.path("expr", "2HR", "no_quality")
 phyloRNA::mkdir(outdir)
 expr_process(
-    file=prepare_2HR$h5,
+    file=prepared_2HR$h5,
     dens=densities, hdi=hdi,
-    mingGene=0, minUMI=0,
+    minGene=0, minUMI=0,
     outdir=outdir, name="2HR",
     save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
     )
@@ -111,9 +111,9 @@ expr_process(
 outdir = file.path("expr", "2HR", "quality")
 phyloRNA::mkdir(outdir)
 expr_process(
-    file=prepare_2HR$h5,
+    file=prepared_2HR$h5,
     dens=densities, hdi=hdi,
-    mingGene=250, minUMI=300,
+    minGene=250, minUMI=300,
     outdir=outdir, name="2HR.quality",
     save_intervals=TRUE, save_discretized=TRUE, save_filtered=TRUE, save_fasta=TRUE
     )
