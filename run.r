@@ -153,35 +153,3 @@ analyse_snv(
     model = "GTR+G+ASC",
     nthreads = nthreads
     )
-
-
-
-############################################################################
-# TODO: move this to src/expr.r
-analyse_expression = function(
-    h5, densities, hdi,
-    exprdir, phylodir, prefix, model,
-    minGene=250, minUMI=300, nthreads=16
-    ){
-    expressed = expr_process(
-        file=h5, dens=densities, hdi=hdi,
-        minGene=minGene, minUMI=minUMI,
-        outdir=exprdir, prefix=prefix
-        )
-
-    iqtrees(expressed$fasta, outdir=phylodir, num2char(densities),
-            model=model, nthreads=nthreads)
-    }
-
-
-# TODO: move this to src/snv.r
-analyse_snv = function(
-    bam, barcodes, reference, densities,
-    snvdir, phylodir, prefix, model, nthreads=16
-    ){
-    snv = detect_snv(bam, barcodes, reference, outdir=snvdir)
-    vcmdir = file.path(snvdir, "vcm")
-    fasta = vcm2fasta(snv$vcm, density=densities, outdir=vcmdir, prefix=prefix)
-    iqtrees(fasta$fasta, outdir=outdir, num2char(densities),
-            model=model, nthreads=nthreads)
-    }

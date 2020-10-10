@@ -126,3 +126,30 @@ num2char = function(x){
 all.files.exists = function(x){
     all(file.exists(unlist(x)))
     }
+
+
+#' Analyse expression data and build trees
+#'
+#' Process, clean and analyse expression data and build phylogenies with an IQtree
+#'
+#' @param h5 an expression count matrix in the h5 format
+#' @param densities desired final density at the end of the matrix filtering step
+#' @param hdi highest density interval for expression categorization
+#' @param model a model definitio for the IQtree
+#' @param minGene a minimum number of required genes in the expression filtering step
+#' @param minUMI a minimum number of UMI in the expression filtering step
+#' @param nthreads a desired number of threads to run the software on
+analyse_expression = function(
+    h5, densities, hdi,
+    exprdir, phylodir, prefix, model,
+    minGene=250, minUMI=300, nthreads=16
+    ){
+    expressed = expr_process(
+        file=h5, dens=densities, hdi=hdi,
+        minGene=minGene, minUMI=minUMI,
+        outdir=exprdir, prefix=prefix
+        )
+
+    iqtrees(expressed$fasta, outdir=phylodir, num2char(densities),
+            model=model, nthreads=nthreads)
+    }

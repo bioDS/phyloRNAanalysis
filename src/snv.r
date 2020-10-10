@@ -77,3 +77,28 @@ vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
 
     return(invisible(result))
     }
+
+
+#' Analyse expression data
+#'
+#' Analyse expression data, filter them and run iqtrees
+#'
+#' @param bam a bam file
+#' @param barcodes file with barcodes
+#' @param reference a genome reference to which the bam file was mapped
+#' @param densities a desired final density for the matrix filtering step
+#' @param snvdir a directory for the snv output
+#' @param phylodir a directory for the iqtree output
+#' @param prefix a file prefix for output files
+#' @param model a iqtree model definition
+#' @param nthreads a number of threads to run software on
+analyse_snv = function(
+    bam, barcodes, reference, densities,
+    snvdir, phylodir, prefix, model, nthreads=16
+    ){
+    snv = detect_snv(bam, barcodes, reference, outdir=snvdir)
+    vcmdir = file.path(snvdir, "vcm")
+    fasta = vcm2fasta(snv$vcm, density=densities, outdir=vcmdir, prefix=prefix)
+    iqtrees(fasta$fasta, outdir=outdir, num2char(densities),
+            model=model, nthreads=nthreads)
+    }
