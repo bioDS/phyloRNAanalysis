@@ -77,7 +77,7 @@ analyse_expression(
     exprdir = file.path("expr", "all", "no_quality"),
     phylodir = file.path("phylo", "all", "no_quality"),
     prefix = "all",
-    model = "ORDINAL+ASC",
+    model = "ORDERED+ASC",
     minGene = 0,
     minUMI = 0,
     nthreads = nthreads
@@ -91,7 +91,7 @@ analyse_expression(
     exprdir = file.path("expr", "all", "quality"),
     phylodir = file.path("phylo", "all", "expr",  "quality"),
     prefix = "all.quality",
-    model = "ORDINAL+ASC",
+    model = "ORDERED+ASC",
     nthreads = nthreads
     )
 # snv:
@@ -124,7 +124,7 @@ analyse_expression(
     exprdir = file.path("expr", "2HR", "no_quality"),
     phylodir = file.path("phylo", "2HR", "no_quality"),
     prefix = "2HR",
-    model = "ORDINAL+ASC",
+    model = "ORDERED+ASC",
     minGene = 0,
     minUMI = 0,
     nthreads = nthreads
@@ -138,7 +138,7 @@ analyse_expression(
     exprdir = file.path("expr", "2HR", "quality"),
     phylodir = file.path("phylo", "2HR", "expr",  "quality"),
     prefix = "2HR.quality",
-    model = "ORDINAL+ASC",
+    model = "ORDERED+ASC",
     nthreads = nthreads
     )
 # snv:
