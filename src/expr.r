@@ -34,12 +34,13 @@ expr_process = function(
         outdir = "."
     if(is.null(prefix))
         prefix = "data"
+    phyloRNA::mkdir(outdir)
 
     result = list(
         intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
         discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep=".")),
-        filtered = file.path(outdir, paste(prefix, "filtered", num2char(dens), "txt", sep=".")),
-        fasta = file.path(outdir, paste(prefix, "filtered", num2char(dens), "fasta", sep="."))
+        filtered = file.path(outdir, paste(prefix, num2char(dens), "txt", sep=".")),
+        fasta = file.path(outdir, paste(prefix, num2char(dens), "fasta", sep="."))
         )
 
     if(all.files.exists(result))

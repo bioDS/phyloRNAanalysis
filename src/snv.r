@@ -56,8 +56,8 @@ vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
         prefix = "data"
 
     result = list(
-        filtered = file.path(outdir, paste(prefix, "filtered", num2char(dens), "txt", sep=".")),
-        fasta = filepath(outdir, paste(prefix, "filtered", num2char(dens), "fasta", sep="."))
+        filtered = file.path(outdir, paste(prefix, num2char(dens), "txt", sep=".")),
+        fasta = filepath(outdir, paste(prefix, num2char(dens), "fasta", sep="."))
         )
 
     if(all.files.exists(result))
