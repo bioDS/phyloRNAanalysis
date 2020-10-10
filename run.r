@@ -23,7 +23,6 @@
 #'
 #' SNV:
 #' -- density: 0.2, 0.5, 0.9
-#' -- Possible 
 #' -- filter constant sites
 #' -- IQtree: GTR+gamma, ultrafast bootstrap -B 1000
 #' -- BEAST: GTR, exponential pop growth, coalescent prior, strict clock
@@ -40,11 +39,8 @@ library("beter")
 source("src/prepare.r")
 source("src/expr.r")
 source("src/snv.r")
+source("src/iqtree.r")
 
-# TODO:
-# * define datasets
-# * define which analysis will be done
-# * separate so that there is no name clash
 
 
 # datasets:
@@ -62,60 +58,130 @@ chemistry = "SC5P-R2"
 densities = c(0.2, 0.5, 0.9)
 hdi = c(0.6, 0.9)
 
-# Preparation step:
+
+
+#######################
+# Analyse all samples #
+#######################
+# Preparation:
 prepared_all = prepare_samples(
     bam_all, reference, annotation, vcf,
     chemistry=chemistry, nthreads=nthreads
     )
+
+# Expression no quality filtering:
+analyse_expression(
+    h5 = prepared_all$h5,
+    densities = densities,
+    hdi = hdi,
+    exprdir = file.path("expr", "all", "no_quality"),
+    phylodir = file.path("phylo", "all", "no_quality"),
+    prefix = "all",
+    model = "ORDINAL+ASC",
+    minGene = 0,
+    minUMI = 0,
+    nthreads = nthreads
+    )
+
+# Expression with quality filtering:
+analyse_expression(
+    h5 = prepared_all$h5,
+    densities = densities,
+    hdi = hdi,
+    exprdir = file.path("expr", "all", "quality"),
+    phylodir = file.path("phylo", "all", "expr",  "quality"),
+    prefix = "all.quality",
+    model = "ORDINAL+ASC",
+    nthreads = nthreads
+    )
+# snv:
+analyse_snv(
+    bam = prepared_all$bam,
+    barcodes = prepared_all$barcodes,
+    reference = reference,
+    densities = densities,
+    snvdir = file.path("snv", "all"),
+    phylodir = file.path("phylo", "all", "snv"),
+    prefix = "all",
+    model = "GTR+G+ASC",
+    nthreads = nthreads
+    )
+
+######################
+# Analyse 2HR sample #
+######################
 prepared_2HR = prepare_sample(
     bam_2HR, reference, annotation, vcf,
     outdir = file.path("prepare", "2HR"),
     chemistry=chemistry, nthreads=nthreads
     )
-# Prepare external data
 
-# Expression step:
-## all samples, no quality filtering
-outdir = file.path("expr", "all", "no_quality")
-phyloRNA::mkdir(outdir)
-expr_all = expr_process(
-    file=prepared_all$h5,
-    dens=densities, hdi=hdi,
-    minGene=0, minUMI=0,
-    outdir=outdir, prefix="all"
-    )
-## all samples, quality filtering
-outdir = file.path("expr", "all", "quality")
-phyloRNA::mkdir(outdir)
-expr_all_quality = expr_process(
-    file=prepared_all$h5,
-    dens=densities, hdi=hdi,
-    minGene=250, minUMI=300,
-    outdir=outdir, prefix="all.quality"
+# Expression no quality filtering:
+analyse_expression(
+    h5 = prepared_2HR$h5,
+    densities = densities,
+    hdi = hdi,
+    exprdir = file.path("expr", "2HR", "no_quality"),
+    phylodir = file.path("phylo", "2HR", "no_quality"),
+    prefix = "2HR",
+    model = "ORDINAL+ASC",
+    minGene = 0,
+    minUMI = 0,
+    nthreads = nthreads
     )
 
-
-## 2HR, no quality filtering
-outdir = file.path("expr", "2HR", "no_quality")
-phyloRNA::mkdir(outdir)
-expr_2HR = expr_process(
-    file=prepared_2HR$h5,
-    dens=densities, hdi=hdi,
-    minGene=0, minUMI=0,
-    outdir=outdir, prefix="2HR"
+# Expression with quality filtering:
+analyse_expression(
+    h5 = prepared_2HR$h5,
+    densities = densities,
+    hdi = hdi,
+    exprdir = file.path("expr", "2HR", "quality"),
+    phylodir = file.path("phylo", "2HR", "expr",  "quality"),
+    prefix = "2HR.quality",
+    model = "ORDINAL+ASC",
+    nthreads = nthreads
     )
-## 2HR, quality filtering
-outdir = file.path("expr", "2HR", "quality")
-phyloRNA::mkdir(outdir)
-expr_2HR_quality = expr_process(
-    file=prepared_2HR$h5,
-    dens=densities, hdi=hdi,
-    minGene=250, minUMI=300,
-    outdir=outdir, prefix="2HR.quality"
+# snv:
+analyse_snv(
+    bam = prepared_2HR$bam,
+    barcodes = prepared_2HR$barcodes,
+    reference = reference,
+    densities = densities,
+    snvdir = file.path("snv", "2HR"),
+    phylodir = file.path("phylo", "2HR", "snv"),
+    prefix = "2HR",
+    model = "GTR+G+ASC",
+    nthreads = nthreads
     )
 
 
-# SNV detection step:
-detect_snv(prepared_all$bam, prepared_all$barcodes, reference, outdir=file.path("snv", "all"))
 
-detect_snv(prepared_2HR$bam, prepared_2HR$barcodes, reference, outdir=file.path("snv", "2HR"))
+############################################################################
+# TODO: move this to src/expr.r
+analyse_expression = function(
+    h5, densities, hdi,
+    exprdir, phylodir, prefix, model,
+    minGene=250, minUMI=300, nthreads=16
+    ){
+    expressed = expr_process(
+        file=h5, dens=densities, hdi=hdi,
+        minGene=minGene, minUMI=minUMI,
+        outdir=exprdir, prefix=prefix
+        )
+
+    iqtrees(expressed$fasta, outdir=phylodir, num2char(densities),
+            model=model, nthreads=nthreads)
+    }
+
+
+# TODO: move this to src/snv.r
+analyse_snv = function(
+    bam, barcodes, reference, densities,
+    snvdir, phylodir, prefix, model, nthreads=16
+    ){
+    snv = detect_snv(bam, barcodes, reference, outdir=snvdir)
+    vcmdir = file.path(snvdir, "vcm")
+    fasta = vcm2fasta(snv$vcm, density=densities, outdir=vcmdir, prefix=prefix)
+    iqtrees(fasta$fasta, outdir=outdir, num2char(densities),
+            model=model, nthreads=nthreads)
+    }
