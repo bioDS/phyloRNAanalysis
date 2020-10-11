@@ -10,10 +10,14 @@
 #' @param model a phylogenetic model for IQtree
 #' @param bootstrap a number of replicates for the ultrafast bootstrap
 #' @param nthreads a number of threads to run the IQtree on
-iqtree = function(fasta, outdir, model="ORDINAL+ASC", bootstrap=1000, nthreads=8){
+iqtree = function(fasta, outdir, model="ORDINAL+ASC", bootstrap=1000, nthreads=8, remake=FALSE){
     phyloRNA::mkdir(outdir)
 
     cfasta = file.path(outdir, basename(fasta))
+
+    if(!remake && file.exists(cfasta))
+        return(invisible())
+
     file.copy(fasta, cfasta)
 
     command = "iqtree"
@@ -23,6 +27,8 @@ iqtree = function(fasta, outdir, model="ORDINAL+ASC", bootstrap=1000, nthreads=8
         "-m", model,
         "-B", bootstrap
         )
+    if(remake)
+        args = c(args, "--redo")
         
     phyloRNA:::systemE(command, args)
     }
