@@ -55,6 +55,8 @@ vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
     if(is.null(prefix))
         prefix = "data"
 
+    mkdir(outdir)
+
     result = list(
         filtered = file.path(outdir, paste(prefix, num2char(density), "txt", sep=".")),
         fasta = file.path(outdir, paste(prefix, num2char(density), "fasta", sep="."))
