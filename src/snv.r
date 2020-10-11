@@ -56,8 +56,8 @@ vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
         prefix = "data"
 
     result = list(
-        filtered = file.path(outdir, paste(prefix, num2char(dens), "txt", sep=".")),
-        fasta = filepath(outdir, paste(prefix, num2char(dens), "fasta", sep="."))
+        filtered = file.path(outdir, paste(prefix, num2char(density), "txt", sep=".")),
+        fasta = file.path(outdir, paste(prefix, num2char(density), "fasta", sep="."))
         )
 
     if(all.files.exists(result))
@@ -96,9 +96,9 @@ analyse_snv = function(
     bam, barcodes, reference, densities,
     snvdir, phylodir, prefix, model, nthreads=16
     ){
-    snv = detect_snv(bam, barcodes, reference, outdir=snvdir)
+    vcm = detect_snv(bam, barcodes, reference, outdir=snvdir)
     vcmdir = file.path(snvdir, "vcm")
-    fasta = vcm2fasta(snv$vcm, density=densities, outdir=vcmdir, prefix=prefix)
+    fasta = vcm2fasta(vcm, density=densities, outdir=vcmdir, prefix=prefix)
     iqtrees(fasta$fasta, outdir=outdir, num2char(densities),
             model=model, nthreads=nthreads)
     }
