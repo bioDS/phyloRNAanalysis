@@ -101,6 +101,6 @@ analyse_snv = function(
     vcm = detect_snv(bam, barcodes, reference, outdir=snvdir)
     vcmdir = file.path(snvdir, "vcm")
     fasta = vcm2fasta(vcm, density=densities, outdir=vcmdir, prefix=prefix)
-    iqtrees(fasta$fasta, outdir=outdir, num2char(densities),
+    iqtrees(fasta$fasta, outdir=phylodir, num2char(densities),
             model=model, nthreads=nthreads)
     }
