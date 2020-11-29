@@ -29,11 +29,9 @@
 #' -- BEAST template prepared with the `beter` package
 #'
 devtools::install_github("biods/phyloRNA") # requires a github authentication token in .Renviron
-devtools::install_github("j-moravec/baffle")
 devtools::install_github("biods/beter")
 
 library("phyloRNA")
-library("baffle")
 library("beter")
 
 source("src/prepare.r")
