@@ -53,7 +53,7 @@ vcf = "/data/phylonco/ReferenceGenomes/vcf/00-common_all.vcf.gz"
 
 # Other settings:
 nthreads = 16
-chemistry = "SC5P-R2"
+chemistry = "SC3Pv2"
 densities = c(0.2, 0.5, 0.9)
 hdi = c(0.6, 0.9)
 
