@@ -15,7 +15,7 @@
 #' to a chosen density
 #' * `phyloRNA::fasta()` -- transform to FASTA sequence
 #'
-#' @param file a path to a expression count matrix stored in a .h5 file
+#' @param h5 a path to a expression count matrix stored in a .h5 file
 #' or list of such paths
 #' @param density **optional** required density or densities of the final matrix
 #' @param hdi **optional** a highest density intervals for discretization
@@ -23,10 +23,11 @@
 #' @param minUMI **optional** minimum number of UMI per cell
 #' @param outdir **optional** an output directory
 #' @param prefix **optional** a prefix for file names
+#' @param normalize **optional** log-normalize the expression data
 #'
 #' @return a list of paths of all outputs
-expr_process = function(
-    file=NULL, density=0.5, hdi=c(0.6,0.9),
+preprocess_expresion = function(
+    h5, density=0.5, hdi=c(0.6,0.9),
     minGene=250, minUMI=500,
     outdir=NULL, prefix=NULL,
     normalize=FALSE
@@ -109,11 +110,18 @@ calculate_intervals = function(data, density=c(0.6,0.9), save=FALSE){
 #'
 #' Write a table in a particular format. This is a simple wrapper around write.table
 #' with a few specified parameters.
+#' @param x a matrix or a data frame
+#' @param file an output path
 write_table = function(x, file){
     write.table(x, file=file, quote=FALSE, sep="\t", col.names=TRUE, row.names=TRUE)
     }
 
 
+#' Convert a numeric value to a character string
+#'
+#' Converts a numeric value in the format `0.X` into a character string `0X`
+#' @param x numeric vector
+#' @return character vector
 num2char = function(x){
     sub(".", "", as.character(x), fixed=TRUE)
     }
@@ -127,31 +135,4 @@ num2char = function(x){
 #' @return a logical value indicating if all files exists.
 all.files.exists = function(x){
     all(file.exists(unlist(x)))
-    }
-
-
-#' Analyse expression data and build trees
-#'
-#' Process, clean and analyse expression data and build phylogenies with an IQtree
-#'
-#' @param h5 an expression count matrix in the h5 format
-#' @param densities desired final density at the end of the matrix filtering step
-#' @param hdi highest density interval for expression categorization
-#' @param model a model definitio for the IQtree
-#' @param minGene a minimum number of required genes in the expression filtering step
-#' @param minUMI a minimum number of UMI in the expression filtering step
-#' @param nthreads a desired number of threads to run the software on
-analyse_expression = function(
-    h5, densities, hdi,
-    exprdir, phylodir, prefix, model,
-    minGene=250, minUMI=300, nthreads=16
-    ){
-    expressed = expr_process(
-        file=h5, dens=densities, hdi=hdi,
-        minGene=minGene, minUMI=minUMI,
-        outdir=exprdir, prefix=prefix
-        )
-
-    iqtrees(expressed$fasta, outdir=phylodir, num2char(densities),
-            model=model, nthreads=nthreads)
     }
