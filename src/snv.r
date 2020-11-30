@@ -21,7 +21,11 @@ library("data.table")
 #'
 #' @return a path to an alignment table with the most frequent base for every cell at every SNV
 #' position
-detect_snv = function(bam, barcodes, reference, outdir=NULL, vcfdir=NULL, vcm=NULL){
+detect_snv = function(
+    bam, barcodes, reference,
+    outdir=NULL, vcfdir=NULL, vcm=NULL,
+    nthreads=16
+    ){
     core = phyloRNA::corename(bam)
 
     if(phyloRNA::is_nn(outdir))
@@ -33,6 +37,7 @@ detect_snv = function(bam, barcodes, reference, outdir=NULL, vcfdir=NULL, vcm=NU
 
     mkdir(outdir)
     mkdir(vcfdir)
+
     vcf = file.path(outdir, paste0(core, ".vcf"))
 
     phyloRNA::gatk_snv(bam, reference, vcf, vcfdir)
@@ -40,6 +45,7 @@ detect_snv = function(bam, barcodes, reference, outdir=NULL, vcfdir=NULL, vcm=NU
 
     invisible(vcm)
     }
+
 
 #' Filter the VCM table
 #'
@@ -77,30 +83,40 @@ vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
         fasta = phyloRNA::fasta(filtered, file=result$fasta[i])
         }
 
-    return(invisible(result))
+    invisible(result)
     }
 
 
-#' Analyse expression data
+
+#' Preprocess SNV data
 #'
-#' Analyse expression data, filter them and run iqtrees
+#' Preprocessing SNVs. This include as bulk SNV detection, single-cell SNV detection
+#' using bulk SNVs and dataset filtering.
 #'
-#' @param bam a bam file
+#' @param bam a bam file prepared according to the GATK best practices
 #' @param barcodes file with barcodes
 #' @param reference a genome reference to which the bam file was mapped
-#' @param densities a desired final density for the matrix filtering step
-#' @param snvdir a directory for the snv output
-#' @param phylodir a directory for the iqtree output
+#' @param density a desired final density for the dataset filtering step
 #' @param prefix a file prefix for output files
-#' @param model a iqtree model definition
-#' @param nthreads a number of threads to run software on
-analyse_snv = function(
-    bam, barcodes, reference, densities,
-    snvdir, phylodir, prefix, model, nthreads=16
+#' @param outdir an output directory
+#' @param snvdir **optional** an output directory for the SNV detection step
+#' @param vcmdir **optional** an output directory for the VCM files
+#' @param nthreads **optional** a number of threads to run on
+preprocess_snv = function(
+    bam, barcodes, reference, density=0.5,
+    prefix, outdir, snvdir=NULL, vcmdir=NULL, nthreads=16
     ){
-    vcm = detect_snv(bam, barcodes, reference, outdir=snvdir)
+    if(is.null(snvdir))
+        snvdir = file.path(outdir, "snv")
+    if(is.null(vcmdir))
+        vcmdir = file.path(outdir, "vcm")
+    phyloRNA::mkdir(snvdir)
+    phyloRNA::mkdir(vcmdir)
+
+    vcm = detect_snv(bam, barcodes, reference, outdir=snvdir, nthreads=nthreads)
     vcmdir = file.path(snvdir, "vcm")
     fasta = vcm2fasta(vcm, density=densities, outdir=vcmdir, prefix=prefix)
-    iqtrees(fasta$fasta, outdir=phylodir, num2char(densities),
-            model=model, nthreads=nthreads)
+    fasta$vcm = vcm
+
+    invisible(fasta)
     }
