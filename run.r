@@ -2,31 +2,31 @@
 #'
 #' Run the analysis. This includes:
 #'
-#' * preparation of sample files
-#' * SNV detection and their evaluation
-#' * Expression analysis
-#' * Phylogenetic reconstruction
+#' Preparation
+#' * remapping, demultiplexing, barcode correction and expression counts using Cellranger
+#' * cleaning BAM files according to the GATK best practices
+#' * adding a sample-specific postfix to cell barcodes
 #'
-#' Analyses:
-#' --------------------
-#' datasets: all, 2HR, foreign (TODO)
+#' Pre-processing:
+#' * Expression
+#'   -- standardization of genes into mu=0 and sd=1
+#'   -- categorization according to empirical 60% and 90% HDI
+#' * SNV:
+#'   -- as bulk SNV identification and filtering with Mutect2
+#'   -- sc SNV identification with vcm.py
+#' * stepwise filtration into 20%, 50% and 90% density
+#' * alternative filtration into 58 best cells and full dataset, 50% and 90% density
 #'
-#' Expression:
-#' -- density: 0.2, 0.5, 0.9
-#' -- filtered and unfiltered (to show that they are the same for a higher density)
-#' -- categorization: According to 60-30-10 empirical intervals
-#' -- filter constant sites
-#' -- IQtree: ORDINAL+ASC; ultrafast bootstrap -B 1000
-#' -- BEAST: ordinal from MM, exponential pop growth, coalescent prior, strict clock,
-#'    2 runs but how many MCMC gen?
-#' -- BEAST template prepared with the `beter` package
-#'
-#' SNV:
-#' -- density: 0.2, 0.5, 0.9
-#' -- filter constant sites
-#' -- IQtree: GTR+gamma, ultrafast bootstrap -B 1000
-#' -- BEAST: GTR, exponential pop growth, coalescent prior, strict clock
-#' -- BEAST template prepared with the `beter` package
+#' Phylogenetic analysis:
+#' * ML with stepwise filtering
+#' * ML and BI with alternative filtration
+#' * BEAST templates created with the `beter` package
+#' * Expression:
+#'   -- IQtree: ORDINAL+ASC, ultrafast bootstrap -B 1000
+#'   -- BEAST: ordinal from MM, exponential pop growth, coalescent prior, strict clock, two runs
+#' * SNV:
+#'   -- IQtree: GTR+gamma, ultrafast bootstrap -B 1000
+#'   -- BEAST: GTR, exponential pop growth, coalescent prior, strict clock, two runs
 #'
 devtools::install_github("biods/phyloRNA") # requires a github authentication token in .Renviron
 devtools::install_github("biods/beter")
