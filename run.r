@@ -73,8 +73,8 @@ analyse_expression(
     h5 = prepared$h5,
     densities = densities,
     hdi = hdi,
-    exprdir = file.path("expr", "all", "no_quality"),
-    phylodir = file.path("phylo", "all", "expr", "no_quality"),
+    exprdir = file.path("expr"),
+    phylodir = file.path("phylo"),
     prefix = "all",
     model = "ORDERED+ASC",
     minGene = 0,
@@ -82,25 +82,14 @@ analyse_expression(
     nthreads = nthreads
     )
 
-# Expression with quality filtering:
-analyse_expression(
-    h5 = prepared$h5,
-    densities = densities,
-    hdi = hdi,
-    exprdir = file.path("expr", "all", "quality"),
-    phylodir = file.path("phylo", "all", "expr",  "quality"),
-    prefix = "all.quality",
-    model = "ORDERED+ASC",
-    nthreads = nthreads
-    )
 # snv:
 analyse_snv(
     bam = prepared$bam,
     barcodes = prepared$barcodes,
     reference = reference,
     densities = densities,
-    snvdir = file.path("snv", "all"),
-    phylodir = file.path("phylo", "all", "snv"),
+    snvdir = file.path("snv"),
+    phylodir = file.path("phylo"),
     prefix = "all",
     model = "GTR+G+ASC",
     nthreads = nthreads
