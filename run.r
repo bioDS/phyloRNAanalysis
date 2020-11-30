@@ -28,7 +28,9 @@
 #'   -- IQtree: GTR+gamma, ultrafast bootstrap -B 1000
 #'   -- BEAST: GTR, exponential pop growth, coalescent prior, strict clock, two runs
 #'
-devtools::install_github("biods/phyloRNA") # requires a github authentication token in .Renviron
+
+# requires a github authentication token in .Renviron
+devtools::install_github("biods/phyloRNA")
 devtools::install_github("biods/beter")
 
 library("phyloRNA")
@@ -38,7 +40,7 @@ source("src/prepare.r")
 source("src/expr.r")
 source("src/snv.r")
 source("src/iqtree.r")
-
+source("src/beast.r") # -- move this into the `beter` package
 
 
 # datasets:
