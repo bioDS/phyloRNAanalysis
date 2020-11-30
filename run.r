@@ -57,40 +57,34 @@ chemistry = "SC3Pv2"
 densities = c(0.2, 0.5, 0.9)
 hdi = c(0.6, 0.9)
 
-
-
-#######################
-# Analyse all samples #
-#######################
 # Preparation:
 prepared = prepare_samples(
     bam, reference, annotation, vcf,
     chemistry=chemistry, nthreads=nthreads
     )
 
-# Expression no quality filtering:
-analyse_expression(
+# Expression preprocessing:
+expr_preprocessed = preprocess_expression(
     h5 = prepared$h5,
-    densities = densities,
+    density = densities,
     hdi = hdi,
-    exprdir = file.path("expr"),
-    phylodir = file.path("phylo"),
-    prefix = "all",
-    model = "ORDERED+ASC",
-    minGene = 0,
-    minUMI = 0,
-    nthreads = nthreads
+    minGene=0,
+    mminUMI=0,
+    outdir = file.path("preprocess", "expr"),
+    prefix = "all"
     )
 
-# snv:
-analyse_snv(
+# SNV preprocessing:
+snv_preprocessed = preprocess_snv(
     bam = prepared$bam,
     barcodes = prepared$barcodes,
     reference = reference,
     densities = densities,
-    snvdir = file.path("snv"),
-    phylodir = file.path("phylo"),
+    outdir = file.path("preprocess", "snv"),
     prefix = "all",
-    model = "GTR+G+ASC",
     nthreads = nthreads
     )
+
+# IQtree model strings:
+# Expr: "ORDERED+ASC"
+# SNV: "GTR+G+ASC"
