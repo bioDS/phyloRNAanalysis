@@ -17,7 +17,7 @@
 #'
 #' @param file a path to a expression count matrix stored in a .h5 file
 #' or list of such paths
-#' @param dens **optional** required density or densities of the final matrix
+#' @param density **optional** required density or densities of the final matrix
 #' @param hdi **optional** a highest density intervals for discretization
 #' @param minGene **optional** minimum number of genes per cell
 #' @param minUMI **optional** minimum number of UMI per cell
@@ -26,9 +26,10 @@
 #'
 #' @return a list of paths of all outputs
 expr_process = function(
-    file=NULL, dens=0.5, hdi=c(0.6,0.9),
+    file=NULL, density=0.5, hdi=c(0.6,0.9),
     minGene=250, minUMI=500,
-    outdir=NULL, prefix=NULL
+    outdir=NULL, prefix=NULL,
+    normalize=FALSE
     ){
     if(is.null(outdir))
         outdir = "."
@@ -59,16 +60,17 @@ expr_process = function(
     if(minGene > 0 && minUMI > 0)
         data = phyloRNA::expr_quality_filter(data, minGene=minGene, minUMI=minUMI)
     data = phyloRNA::expr_zero_to_na(data)
-    data = phyloRNA::expr_normalize(data)
+    if(normalize)
+        data = phyloRNA::expr_normalize(data)
     data = phyloRNA::expr_scale(data)
 
     intervals = calculate_intervals(data, density=hdi, save=result$intervals)
-    discr = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
-    write.table(discr, result$discretized)
+    discretized = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
+    write.table(discretized, result$discretized)
 
     for(i in seq_along(dens)){
         density = dens[i]
-        filtered = phyloRNA::densest_subset(discr, empty="-", steps=10000, density=density)$result
+        filtered = phyloRNA::densest_subset(discretized, empty="-", density=density)$result
         filtered = phyloRNA::remove_constant(filtered, margin=1, unknown="-")
         write_table(filtered, result$filtered[i])
 
