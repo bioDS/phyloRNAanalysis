@@ -73,7 +73,6 @@ prepared = prepare_samples(
 # Expression preprocessing:
 expr_preprocessed = preprocess_expression(
     h5 = prepared$h5,
-    density = densities,
     hdi = hdi,
     minGene=0,
     mminUMI=0,
@@ -81,16 +80,38 @@ expr_preprocessed = preprocess_expression(
     prefix = "all"
     )
 
+
+expr_filtered = filter_expression(
+    expr_preprocessed$discretized,
+    selection = selection,
+    density = densities,
+    outdir = "filtered"
+    )
+
+
+epxr_fasta = table2fasta(unlist(expr_filtered), outdir="fasta")
+
+
 # SNV preprocessing:
 snv_preprocessed = preprocess_snv(
     bam = prepared$bam,
     barcodes = prepared$barcodes,
     reference = reference,
-    densities = densities,
     outdir = file.path("preprocess", "snv"),
-    prefix = "all",
     nthreads = nthreads
     )
+
+
+snv_filtered = filter_snv(
+    vcm = snv_preprocessed,
+    selection = selection,
+    density = densities,
+    outdir = "filtered"
+    )
+
+
+snv_fasta = table2fasta(unlist(snv_filtered), outdir="fasta")
+
 
 # IQtree model strings:
 # Expr: "ORDERED+ASC"

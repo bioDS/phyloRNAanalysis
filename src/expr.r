@@ -27,7 +27,7 @@
 #'
 #' @return a list of paths of all outputs
 preprocess_expresion = function(
-    h5, density=0.5, hdi=c(0.6,0.9),
+    h5, hdi=c(0.6,0.9),
     minGene=250, minUMI=500,
     outdir=NULL, prefix=NULL,
     normalize=FALSE
@@ -41,8 +41,6 @@ preprocess_expresion = function(
     result = list(
         intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
         discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep=".")),
-        filtered = file.path(outdir, paste(prefix, num2char(dens), "txt", sep=".")),
-        fasta = file.path(outdir, paste(prefix, num2char(dens), "fasta", sep="."))
         )
 
     if(all.files.exists(result))
@@ -67,16 +65,7 @@ preprocess_expresion = function(
 
     intervals = calculate_intervals(data, density=hdi, save=result$intervals)
     discretized = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
-    write.table(discretized, result$discretized)
-
-    for(i in seq_along(dens)){
-        density = dens[i]
-        filtered = phyloRNA::densest_subset(discretized, empty="-", density=density)$result
-        filtered = phyloRNA::remove_constant(filtered, margin=1, unknown="-")
-        write_table(filtered, result$filtered[i])
-
-        fasta = phyloRNA::fasta(filtered, file=result$fasta[i])
-        }
+    write_table(discretized, result$discretized)
 
     return(invisible(result))
     }
@@ -103,4 +92,34 @@ calculate_intervals = function(data, density=c(0.6,0.9), save=FALSE){
         dput(intervals, save)
 
     sort(unlist(intervals))
+    }
+
+
+#' Filter Expression dataset
+#'
+#' Filter expression dataset using two types of filtering approaches
+#' see `src/filter.r` for more information
+#'
+#' @param expr discretized expression data
+#' @param selection named list of vector specifying how many cells of each type should be selected
+#' @param density desired data density
+#' @param outdir an output directory
+#' @return a list of filtered files
+filter_expression = function(expr, selection, density=0.5, outdir=NULL){
+    if(is.null(outdir))
+        outdir = "."
+    mkdir(outdir)
+
+    data = read.table(expr, header=TRUE, sep="\t")
+
+    prefix = "expr"
+    filter = density_filtering(data, density=density, empty="-", outdir=outdir, prefix=prefix)
+
+    prefix = "expr_subset"
+    subset = subset_filtering(
+        data, selection=selection, density=density,
+        empty="-", outdir=outdir, prefix=prefix
+        )
+
+    list("filter" = filter, "subset" = subset)
     }

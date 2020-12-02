@@ -47,45 +47,6 @@ detect_snv = function(
     }
 
 
-#' Filter the VCM table
-#'
-#' Find a densest subset of the SNV data contained in the vcm table.
-#'
-#' @param vcm a vcm file
-#' @param density a vector of the required density or densities
-#' @param outdir **optional** an output directory
-#' @param prefix **optional** a file prefix
-vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
-    if(is.null(outdir))
-        outdir = "."
-    if(is.null(prefix))
-        prefix = "data"
-
-    mkdir(outdir)
-
-    result = list(
-        filtered = file.path(outdir, paste(prefix, num2char(density), "txt", sep=".")),
-        fasta = file.path(outdir, paste(prefix, num2char(density), "fasta", sep="."))
-        )
-
-    if(all.files.exists(result))
-        return(invisible(result))
-
-    # using data.table due to a huge size of the dataset
-    data = data.table::fread(vcm, header=TRUE)
-    data = data[,-c(1:3)] # first three columns are not cells (chromosome, position and reference)
-    
-    for(i in seq_along(density)){
-        dens = density[i]
-        filtered = phyloRNA::densest_subset(data, empty="N", steps=0, density=dens)$result
-        filtered = phyloRNA::remove_constant(filtered, margin=1)
-        write_table(filtered, result$filtered[i])
-        fasta = phyloRNA::fasta(filtered, file=result$fasta[i])
-        }
-
-    invisible(result)
-    }
-
 
 
 #' Preprocess SNV data
@@ -96,27 +57,48 @@ vcm2fasta = function(vcm, density=0.5, outdir=NULL, prefix=NULL){
 #' @param bam a bam file prepared according to the GATK best practices
 #' @param barcodes file with barcodes
 #' @param reference a genome reference to which the bam file was mapped
-#' @param density a desired final density for the dataset filtering step
-#' @param prefix a file prefix for output files
-#' @param outdir an output directory
-#' @param snvdir **optional** an output directory for the SNV detection step
-#' @param vcmdir **optional** an output directory for the VCM files
+#' @param outdir **optional** an output directory
 #' @param nthreads **optional** a number of threads to run on
 preprocess_snv = function(
-    bam, barcodes, reference, density=0.5,
-    prefix, outdir, snvdir=NULL, vcmdir=NULL, nthreads=16
+    bam, barcodes, reference, outdir=NULL, nthreads=16
     ){
-    if(is.null(snvdir))
-        snvdir = file.path(outdir, "snv")
-    if(is.null(vcmdir))
-        vcmdir = file.path(outdir, "vcm")
-    phyloRNA::mkdir(snvdir)
-    phyloRNA::mkdir(vcmdir)
+    if(is.null(outdir))
+        outdir = "."
+    mkdir(outdir)
 
-    vcm = detect_snv(bam, barcodes, reference, outdir=snvdir, nthreads=nthreads)
-    vcmdir = file.path(snvdir, "vcm")
-    fasta = vcm2fasta(vcm, density=densities, outdir=vcmdir, prefix=prefix)
-    fasta$vcm = vcm
+    vcm = detect_snv(bam, barcodes, reference, outdir=outdir, nthreads=nthreads)
 
-    invisible(fasta)
+    invisible(vcm)
+    }
+
+
+#' Filter SNV
+#'
+#' Filter SNV dataset using two types of filtering approaches
+#' see `src/filter.r` for more information
+#'
+#' @param vcm a vcm file
+#' @param selection named list or vector specifying how many cells of each type should be selected
+#' @param density desired data density
+#' @param outdir an output directory
+#' @return a list of filtered files
+filter_snv = function(vcm, selection, density=0.5, outdir=NULL){
+    if(is.null(outdir))
+        outdir = "."
+    mkdir(outdir)
+
+    # using data.table due to a huge size of the dataset
+    data = data.table::fread(vcm, header=TRUE)
+    data = data[,-c(1:3)] # first three columns are not cells (chromosome, position and reference)
+
+    prefix = "snv"
+    filter = density_filtering(data, density=density, empty="N", outdir=outdir, prefix=prefix)
+
+    prefix = "snv_subset"
+    subset = subset_filtering(
+        data, selection=selection, density=density,
+        empty="N", outdir=outdir, prefix=prefix
+        )
+    
+    list("filter" = filter, "subset" = subset)
     }
