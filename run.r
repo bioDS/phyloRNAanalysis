@@ -17,6 +17,10 @@
 #' * stepwise filtration into 20%, 50% and 90% density
 #' * alternative filtration into 58 best cells and full dataset, 50% and 90% density
 #'
+#' Filtering:
+#' * stepwise filtration into 20%, 50% and 90% density
+#' * subset into 58 best cells and filtering into 50% and 90% density
+#'
 #' Phylogenetic analysis:
 #' * ML with stepwise filtering
 #' * ML and BI with alternative filtration
@@ -38,6 +42,7 @@ library("beter")
 
 source("src/utils.r")
 source("src/prepare.r")
+source("src/filter.r")
 source("src/expr.r")
 source("src/snv.r")
 source("src/iqtree.r")
@@ -57,6 +62,7 @@ nthreads = 16
 chemistry = "SC3Pv2"
 densities = c(0.2, 0.5, 0.9)
 hdi = c(0.6, 0.9)
+selection = c("T1" = 20, "T3" = 20, "T2" = 6, "CTC1" = 6, "CTC2" = 6)
 
 # Preparation:
 prepared = prepare_samples(
