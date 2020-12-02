@@ -104,35 +104,3 @@ calculate_intervals = function(data, density=c(0.6,0.9), save=FALSE){
 
     sort(unlist(intervals))
     }
-
-
-#' Write a table
-#'
-#' Write a table in a particular format. This is a simple wrapper around write.table
-#' with a few specified parameters.
-#' @param x a matrix or a data frame
-#' @param file an output path
-write_table = function(x, file){
-    write.table(x, file=file, quote=FALSE, sep="\t", col.names=TRUE, row.names=TRUE)
-    }
-
-
-#' Convert a numeric value to a character string
-#'
-#' Converts a numeric value in the format `0.X` into a character string `0X`
-#' @param x numeric vector
-#' @return character vector
-num2char = function(x){
-    sub(".", "", as.character(x), fixed=TRUE)
-    }
-
-
-#' Check existence of files
-#'
-#' This function checks the existence of all files stored in a list.
-#'
-#' @param files a list of files.
-#' @return a logical value indicating if all files exists.
-all.files.exists = function(x){
-    all(file.exists(unlist(x)))
-    }

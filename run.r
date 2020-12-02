@@ -36,6 +36,7 @@ devtools::install_github("biods/beter")
 library("phyloRNA")
 library("beter")
 
+source("src/utils.r")
 source("src/prepare.r")
 source("src/expr.r")
 source("src/snv.r")
