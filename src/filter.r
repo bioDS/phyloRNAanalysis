@@ -57,8 +57,8 @@ select_from_list = function(x, selection){
     }
 
 
-subset_rows = function(x, k){
-    rs = rowSums(x != "N")
+subset_rows = function(x, k, empty){
+    rs = rowSums( is_empty(x, empty) )
     y = x[rs > k, ]
     y = phyloRNA::remove_constant(y)
     y
@@ -86,14 +86,13 @@ select = function(x, selection, pattern=".*-", replace="", empty=NA){
     columns = select_from_list(columns, selection)
     columns = unlist(columns)
     x = x[,columns]
-
     # Filter columns with only single value 
-    subset_rows(x, 1)
+    subset_rows(x, 1, empty)
     }
 
 
 mdensity = function(x, empty){
-    sum(is_empty(x)) / prod(dim(x))
+    sum(is_empty(x, empty)) / prod(dim(x))
     }
 
 
@@ -106,7 +105,7 @@ mdensity = function(x, empty){
 densest_rows = function(x, density=0.5, empty=NA){
     k = 1
     while(TRUE){
-        subset_rows(x, k)
+        x = subset_rows(x, k, empty)
         k = k + 1
         if(mdensity(x, empty) > density)
             break
