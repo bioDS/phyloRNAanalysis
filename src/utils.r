@@ -58,7 +58,7 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
     if(!is.null(fasta) && length(fasta) != length(file))
         stop("The file and fasta vectors must have the same length!")
     if(is.null(fasta))
-        fasta = tools::file_path_sans_ext(file)
+        fasta = paste0(tools::file_path_sans_ext(file), ".fasta")
     if(!is.null(outdir))
         fasta = file.path(outdir, basename(fasta))
     mkdir(outdir)
