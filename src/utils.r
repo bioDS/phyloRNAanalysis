@@ -44,7 +44,7 @@ all.files.exists = function(x){
 #' @param margin whether rows (1) or columns (2) should be concatenated
 #' @return a vector of fasta files
 table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
-    if(!is.null(fasta)) && length(fasta) != length(file)
+    if(!is.null(fasta) && length(fasta) != length(file))
         stop("The file and fasta vectors must have the same length!")
     if(is.null(fasta))
         fasta = tools::file.path.sans.ext(file)
