@@ -54,7 +54,7 @@ bam = dir("data", full.names=TRUE)
 
 # required reference files:
 reference = "/data/phylonco/ReferenceGenomes/human_GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
-annotation = "/data/phylonco/ReferenceGenomes/human_GRCh38/GCA_000001405.15_GRCh38_full_analysis_set.refseq_annotation.gtf"
+annotation = "/data/phylonco/ReferenceGenomes/human_GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
 vcf = "/data/phylonco/ReferenceGenomes/vcf/00-common_all.vcf.gz"
 
 # Other settings:
