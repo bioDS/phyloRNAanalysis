@@ -26,7 +26,7 @@
 #' @param normalize **optional** log-normalize the expression data
 #'
 #' @return a list of paths of all outputs
-preprocess_expresion = function(
+preprocess_expression = function(
     h5, hdi=c(0.6,0.9),
     minGene=250, minUMI=500,
     outdir=NULL, prefix=NULL,
@@ -40,19 +40,19 @@ preprocess_expresion = function(
 
     result = list(
         intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
-        discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep=".")),
+        discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep="."))
         )
 
     if(all.files.exists(result))
         return(invisible(result))
 
 
-    if(length(file) > 1){
-        names = phyloRNA::corename(file)
-        data = lapply(file, phyloRNA::expr_read10xh5)
+    if(length(h5) > 1){
+        names = phyloRNA::corename(h5)
+        data = lapply(h5, phyloRNA::expr_read10xh5)
         data = phyloRNA::expr_merge(data, names)
         } else {
-        data = phyloRNA::expr_read10xh5(file)
+        data = phyloRNA::expr_read10xh5(h5)
         }
 
 
