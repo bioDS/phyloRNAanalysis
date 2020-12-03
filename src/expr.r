@@ -110,7 +110,7 @@ filter_expression = function(expr, selection, density=0.5, outdir=NULL){
         outdir = "."
     mkdir(outdir)
 
-    data = read.table(expr, header=TRUE, sep="\t", check.names=FALSE)
+    data = read_table(expr)
 
     prefix = "expr"
     filter = density_filtering(data, density=density, empty="-", outdir=outdir, prefix=prefix)

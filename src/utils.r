@@ -15,6 +15,17 @@ write_table = function(x, file){
     }
 
 
+#' Read a table
+#'
+#' Read a table in a particular format. This is a simple wrapper around read.table
+#' with a few specified parameters.
+#' @param file a file in tabular format
+#' @return data.frame
+read_table = function(file){
+    read.table(file, header=TRUE, check.names=FALSE, stringsAsFactors=FALSE, sep="\t")
+    }
+
+
 #' Convert a numeric value to a character string
 #'
 #' Converts a numeric value in the format `0.X` into a character string `0X`
@@ -56,7 +67,7 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
         return(invisible(fasta))
 
     for(i in seq_along(file)){
-        data = read.table(file[i], header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+        data = read_table(file[i])
         fasta = phyloRNA::fasta(data, margin=margin, file=fasta[i])
         }
 
