@@ -96,7 +96,7 @@ filter_snv = function(vcm, selection, density=0.5, outdir=NULL){
 
     prefix = "snv_subset"
     subset = subset_filtering(
-        data, selection=selection, density=density,
+        as.data.frame(data), selection=selection, density=density,
         empty="N", outdir=outdir, prefix=prefix
         )
     
