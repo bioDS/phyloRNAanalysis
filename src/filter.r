@@ -105,10 +105,18 @@ mdensity = function(x, empty){
 densest_rows = function(x, density=0.5, empty=NA){
     k = 1
     while(TRUE){
-        x = subset_rows(x, k, empty)
-        k = k + 1
-        if(mdensity(x, empty) > density)
+        y = subset_rows(x, k, empty)
+
+        # Filtering would result in a empty dataset
+        if(nrow(y) == 0)
             break
+
+        # Stop just bellow desired density
+        if(mdensity(y, empty) > density)
+            break
+ 
+        x = y
+        k = k + 1
         }
     x
     }
