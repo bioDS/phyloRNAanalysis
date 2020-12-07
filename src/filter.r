@@ -60,7 +60,7 @@ select_from_list = function(x, selection){
 subset_rows = function(x, k, empty){
     rs = rowSums( is_empty(x, empty) )
     y = x[rs > k, ]
-    y = phyloRNA::remove_constant(y)
+    y = phyloRNA::remove_constant(y, margin=1, empty)
     y
     }
 
