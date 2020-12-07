@@ -199,7 +199,7 @@ subset_filtering = function(x, selection, density=0.5, empty="N", outdir=NULL, p
     }
 
 
-subset_filtering_filenames(outdir, prefix, density){
+subset_filtering_filenames = function(outdir, prefix, density){
     filenames = c(
         file.path(outdir, paste0(prefix, ".txt")),
         density_filenames(outdir, prefix,density)
