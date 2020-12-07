@@ -43,7 +43,7 @@ iqtrees = function(fastas, model, outdir=NULL, bootstrap=1000, nthreads=8){
 
     for(fasta in fastas){
         subdir = file.path(outdir, basename(tools::file_path_sans_ext(fasta)))
-        iqtree(fasta, subdir, model, bootstrap, nthreads)
+        iqtree(fasta, model, subdir, bootstrap, nthreads)
         }
     }
 

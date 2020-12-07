@@ -122,6 +122,10 @@ densest_rows = function(x, density=0.5, empty=NA){
     }
 
 
+density_filenames = function(outdir, prefix, density){
+    file.path(outdir, paste0(prefix, num2char(density), ".txt"))
+    }
+
 
 #' Filtering by finding the densest subset
 #'
@@ -141,7 +145,8 @@ density_filtering = function(x, density=0.5, empty="N", outdir=NULL, prefix=NULL
         prefix = "filtered"
     mkdir(outdir)
 
-    outfile = file.path(outdir, paste0(prefix, num2char(density), ".txt"))
+    outfile = density_filenames(outdir, prefix, density)
+
     if(all.files.exists(outfile))
         return(invisible(outfile))
 
@@ -153,6 +158,8 @@ density_filtering = function(x, density=0.5, empty="N", outdir=NULL, prefix=NULL
 
     invisible(outfile)
     }
+
+
 
 
 #' Filtering by selecting the best cells
@@ -175,20 +182,27 @@ subset_filtering = function(x, selection, density=0.5, empty="N", outdir=NULL, p
         prefix = "filtered"
     mkdir(outdir)
 
-    subsetpath = file.path(outdir, paste0(prefix, ".txt"))
-    filteredpath = file.path(outdir, paste0(prefix, num2char(density), ".txt"))
-    outfile = c(subsetpath, filteredpath)
+    outfiles = subset_filtering_filenames(outdir, prefix)
 
-    if(all.files.exists(outfile))
-        return(invisible(outfile))
+    if(all.files.exists(outfiles))
+        return(invisible(outfiles))
 
     subset = select(x, selection, empty=empty)
-    write_table(subset, subsetpath)
+    write_table(subset, outfiles[1])
 
     for(i in seq_along(density)){
         filtered = densest_rows(subset, density[i], empty=empty)
-        write_table(filtered, filteredpath[i])
+        write_table(filtered, outfiles[i+1])
         }
 
-    invisible(outfile)
+    invisible(outfiles)
+    }
+
+
+subset_filtering_filenames(outdir, prefix, density){
+    filenames = c(
+        file.path(outdir, paste0(prefix, ".txt")),
+        density_filenames(outdir, prefix,density)
+        )
+    filenames
     }

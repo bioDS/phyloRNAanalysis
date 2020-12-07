@@ -87,6 +87,16 @@ filter_snv = function(vcm, selection, density=0.5, outdir=NULL){
         outdir = "."
     mkdir(outdir)
 
+    prefix_filter = "snv"
+    prefix_subset = "snv_subset"
+
+    # create filenames and check for their existence
+    filter = density_filenames(outdir, prefix_filter, density)
+    subset = subset_filtering_filenames(outdir, prefix_subset, density)
+    result = list("filter" = filter, "subset" = subset)
+    if(all.files.exists(result))
+        return(invisible(result))
+
     # using data.table due to a huge size of the dataset
     data = data.table::fread(vcm, header=TRUE)
     data = data[,-c(1:3)] # first three columns are not cells (chromosome, position and reference)
