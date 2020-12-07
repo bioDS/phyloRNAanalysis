@@ -182,7 +182,7 @@ subset_filtering = function(x, selection, density=0.5, empty="N", outdir=NULL, p
         prefix = "filtered"
     mkdir(outdir)
 
-    outfiles = subset_filtering_filenames(outdir, prefix)
+    outfiles = subset_filtering_filenames(outdir, prefix, density)
 
     if(all.files.exists(outfiles))
         return(invisible(outfiles))
