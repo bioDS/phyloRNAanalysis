@@ -110,15 +110,21 @@ filter_expression = function(expr, selection, density=0.5, outdir=NULL){
         outdir = "."
     mkdir(outdir)
 
-    data = read_table(expr)
-
     prefix = "expr"
-    filter = density_filtering(data, density=density, empty="-", outdir=outdir, prefix=prefix)
+    prefix_subset = "expr_subset"
+    result = list(
+        "filter" = density_filenames(outdir, prefix, density),
+        "subset" = subset_filtering_filenames(outdir, prefix_subset, density)
+        )
 
-    prefix = "expr_subset"
+    if(all.files.exists(result))
+        return(invisible(result))
+
+    data = read_table(expr)
+    filter = density_filtering(data, density=density, empty="-", outdir=outdir, prefix=prefix)
     subset = subset_filtering(
         data, selection=selection, density=density,
-        empty="-", outdir=outdir, prefix=prefix
+        empty="-", outdir=outdir, prefix=prefix_subset
         )
 
     list("filter" = filter, "subset" = subset)
