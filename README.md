@@ -48,7 +48,7 @@ Following external software is required:
 * `IQtree`
 * `BEAST2`
 
-We suggest the [conda](conda.io) package manager to painfully install these.
+We suggest the [conda](https://docs.conda.io/en/latest/) package manager to painfully install these.
 See the [phyloRNA](https://github.com/bioDS/phyloRNA) package for more information.
 
 ## Analysis
