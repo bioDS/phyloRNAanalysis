@@ -88,7 +88,8 @@ expr_filtered = filter_expression(
     outdir = "filtered"
     )
 
-expr_fasta = table2fasta(unlist(expr_filtered), outdir="fasta")
+expr_fasta = table2fasta(expr_filtered$filter, outdir="fasta")
+expr_fasta_subset = table2fasta(expr_filtered$subset, outdir="fasta")
 
 # SNV preprocessing:
 snv_preprocessed = preprocess_snv(
@@ -106,21 +107,19 @@ snv_filtered = filter_snv(
     outdir = "filtered"
     )
 
-snv_fasta = table2fasta(unlist(snv_filtered), outdir="fasta")
 
+snv_fasta = table2fasta(snv_filtered$filter, outdir="fasta")
+snv_fasta_subset = table2fasta(snv_filtered$subset, outdir="fasta")
 
 # IQtree phylogenetic analysis:
-iqtrees(expr_fasta, model="ORDERED+ASC", outdir="phylo")
-iqtrees(snv_fasta, model="GTR+G+ASC", outdir="phylo")
+iqtrees(c(expr_fasta, expr_fasta_subset), model="ORDERED+ASC", outdir="phylo")
+iqtrees(c(snv_fasta, snv_fasta_subset), model="GTR+G+ASC", outdir="phylo")
 
-
-
-# combined analysis on the subset
-iqtrees_partition(arglist, outdir="phylo")
 # connect fasta and snv
-combined_fasta = Map(function(x,y){list(x,y)}, expr_filtered$subset, snv_filtered$subset)
+combined_fasta = Map(function(x,y){list(x,y)}, expr_fasta_subset, snv_fasta_subset)
 combied_model = rep(c("ORDERED+ASC","GTR+G+ASC"), length(combined_fasta))
 combined_outdir = paste0("combined", c("", num2char(densities)))
+# combined analysis on the subset
 iqtrees_partition(make_arglist(combined_fasta, combined_model, combined_outdir), outdir="phylo")
 
 # IQtree model strings:

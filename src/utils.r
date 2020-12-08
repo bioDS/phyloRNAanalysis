@@ -68,8 +68,8 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
 
     for(i in seq_along(file)){
         data = read_table(file[i])
-        alignment = phyloRNA::fasta(data, margin=margin, file=fasta[i])
+        phyloRNA::fasta(data, margin=margin, file=fasta[i])
         }
 
-    invisible(alignment)
+    invisible(fasta)
     }
