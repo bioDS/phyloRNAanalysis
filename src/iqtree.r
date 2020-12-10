@@ -48,7 +48,7 @@ iqtrees = function(fastas, model, outdir=NULL, bootstrap=1000, nthreads=8){
     }
 
 
-iqtree_partition = function(fasta, model, outdir=NULL, bootstrap=1000, nthreads=8){
+iqtree_partition = function(fasta, model, outdir=NULL, bootstrap=1000, nthreads=8, remake=FALSE){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
@@ -92,13 +92,13 @@ generate_partition = function(fasta, model, file, name=NULL){
         stop("Length of fasta files and model strings differ!")
 
     partition = paste0("part", seq_along(fasta))
-    modelstring = paste(model, charset, sep=":", collapse=", ")
+    modelstring = paste(model, partition, sep=":", collapse=", ")
 
     text = c(
         "#nexus",
         "begin sets;",
         paste0("    charset ", partition, " = ", fasta, ": *;"),
-        paste0("    ", name, " = ", modelstring, ";"),
+        paste0("    charpartition ", name, " = ", modelstring, ";"),
         "end;"
         )
     
@@ -124,7 +124,8 @@ iqtrees_partition = function(arglist, outdir=NULL, bootstrap=1000, nthreads=8){
 
 make_arglist = function(fastas, models, outdirs){
     mapply(
-        function(fasta, model, outdirs){ list(fasta=fastas, model=models, outdir=outdirs) },
-        fastas, models, outdirs
+        function(fasta, model, outdir){ list("fasta"=fasta, "model"=model, "outdir"=outdir) },
+        fastas, models, outdirs,
+        SIMPLIFY=FALSE
         )
     }

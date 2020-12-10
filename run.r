@@ -116,8 +116,8 @@ iqtrees(c(expr_fasta, expr_fasta_subset), model="ORDERED+ASC", outdir="phylo")
 iqtrees(c(snv_fasta, snv_fasta_subset), model="GTR+G+ASC", outdir="phylo")
 
 # connect fasta and snv
-combined_fasta = Map(function(x,y){list(x,y)}, expr_fasta_subset, snv_fasta_subset)
-combined_model = rep(c("ORDERED+ASC","GTR+G+ASC"), length(combined_fasta))
+combined_fasta = Map(function(x,y){c(x,y)}, expr_fasta_subset, snv_fasta_subset)
+combined_model = rep(list(c("ORDERED+ASC","GTR+G+ASC")), length(combined_fasta))
 combined_outdir = paste0("combined", c("", num2char(densities)))
 # combined analysis on the subset
 iqtrees_partition(make_arglist(combined_fasta, combined_model, combined_outdir), outdir="phylo")
