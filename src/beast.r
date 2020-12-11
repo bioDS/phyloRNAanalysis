@@ -18,7 +18,7 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
     prefix = better:::basename_sans_ext(fasta)
 
     beastxml = paste0(prefix, ".xml")
-    beter::(template, file.path(outdir, beastxml), alignment=fasta, parameters=params)
+    beter::process_template(template, file.path(outdir, beastxml), alignment=fasta, parameters=params)
 
     beast_args = c(
         "-beagle_CPU",
