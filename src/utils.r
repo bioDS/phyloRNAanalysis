@@ -82,7 +82,7 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
 read_fasta = function(file){
     text = readLines(file)
     starts = grep(">", text)
-    stops = c(starts[-1] - 1. length(text))
+    stops = c(starts[-1] - 1, length(text))
 
     fasta = mapply(
         function(start, stop, text){
