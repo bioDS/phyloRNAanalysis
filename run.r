@@ -126,8 +126,8 @@ iqtrees_partition(
     )
 
 # BI phylogenetic analysis
-beasts(
-    snv_fasta_subset,
-    template = filepath("templates", "ExpStrictGtr.xml"),
-    outdir = file.path("phylo", "BI")
-    )
+#beasts(
+#    snv_fasta_subset,
+#    template = filepath("templates", "ExpStrictGtr.xml"),
+#    outdir = file.path("phylo", "BI")
+#    )
