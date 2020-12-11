@@ -125,6 +125,9 @@ iqtrees_partition(
     outdir=file.path("phylo", "ML"), intersect=TRUE
     )
 
-# IQtree model strings:
-# Expr: "ORDERED+ASC"
-# SNV: "GTR+G+ASC"
+# BI phylogenetic analysis
+beasts(
+    snv_fasta_subset,
+    template = filepath("templates", "ExpStrictGtr.xml"),
+    outdir = file.path("phylo", "BI")
+    )
