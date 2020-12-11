@@ -48,7 +48,14 @@ iqtrees = function(fastas, model, outdir=NULL, bootstrap=1000, nthreads=8){
     }
 
 
-iqtree_partition = function(fasta, model, outdir=NULL, bootstrap=1000, nthreads=8, remake=FALSE){
+iqtree_partition = function(
+    fasta, model,
+    outdir = NULL,
+    bootstrap = 1000,
+    nthreads = 8,
+    remake = FALSE,
+    intersect=FALSE
+    ){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
@@ -58,8 +65,15 @@ iqtree_partition = function(fasta, model, outdir=NULL, bootstrap=1000, nthreads=
     if(!remake && all(file.exists(cfasta)))
         return(invisible())
 
-    file.copy(fasta, cfasta)
-    nexus = file.path(outdir, "parititon.nex")
+    if(intersect){
+        if(length(fasta) != 2)
+            stop("This option works only for two fasta files")
+        fasta_intersect(fasta[1], fasta[2], xout=cfasta[1], yout=cfasta[2])
+        } else {
+        file.copy(fasta, cfasta)
+        }
+        
+    nexus = file.path(outdir, "partition.nex")
     generate_partition(fasta, model, nexus)
 
     command = "iqtree"

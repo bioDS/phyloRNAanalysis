@@ -73,3 +73,67 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
 
     invisible(fasta)
     }
+
+
+#' Read fasta file
+#'
+#' @param file a fasta file
+#' @return a named vector of sequences
+read_fasta = function(file){
+    text = readLines(file)
+    starts = grep(">", text)
+    stops = c(starts[-1] - 1. length(text))
+
+    fasta = mapply(
+        function(start, stop, text){
+            seq = text[(start+1):stop]
+            seq = gsub("[:blank:]*", "", seq)
+            paste0(seq, collapse="")
+            },
+        starts, stops, MoreArgs=list(text)
+        )
+    names(fasta) = sub("^>", "", text[starts] )
+    fasta
+    }
+
+
+#' Write fasta file
+#'
+#' @param fasta a named vector of sequences
+#' @param file an output file
+write_fasta = function(fasta, file){
+    text = paste0(">", names(fasta), "\n", fasta)
+    writeLines(text, file)
+    }
+
+
+#' Find sequences shared by two fasta files
+#'
+#' Read two fasta files, finds shared sequences and then write these sequences fasta files.
+#'
+#' @param x a fasta file
+#' @param y a fasta file
+#' @param outdir **optional** an output directory for filtered fasta files
+#' @param xout **optional** an output path for filtered x fasta
+#' @param yout **optional** an output path for filtered y fasta
+fasta_intersect = function(x, y, outdir=NULL, xout=NULL, yout=NULL){
+    xseq = read_fasta(x)
+    yseq = read_fasta(y)
+    shared = intersect(names(xseq), names(yseq))
+
+    if(length(shared) == 0)
+        stop("Empty intersect")
+
+    xseq = xseq[shared]
+    yseq = yseq[shared]
+
+    if(is.null(outdir))
+        outdir = "."
+    if(is.null(xout))
+        xout = file.path(outdir, basename(x))
+    if(is.null(yout))
+        yout = file.path(outdir, basename(y))
+
+    write_fasta(xseq, xout)
+    write_fasta(yseq, yout)
+    }
