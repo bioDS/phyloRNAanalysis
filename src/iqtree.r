@@ -54,7 +54,7 @@ iqtree_partition = function(
     bootstrap = 1000,
     nthreads = 8,
     remake = FALSE,
-    intersect=FALSE
+    intersect = FALSE
     ){
     if(is.null(outdir))
         outdir = "."
@@ -120,7 +120,7 @@ generate_partition = function(fasta, model, file, name=NULL){
     }
 
 
-iqtrees_partition = function(arglist, outdir=NULL, bootstrap=1000, nthreads=8){
+iqtrees_partition = function(arglist, outdir=NULL, bootstrap=1000, nthreads=8, intersect=FALSE){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
@@ -129,8 +129,9 @@ iqtrees_partition = function(arglist, outdir=NULL, bootstrap=1000, nthreads=8){
             fasta = args$fasta,
             model = args$model,
             outdir = file.path(outdir, args$outdir),
-            bootstrap = 1000,
-            nthreads = 8
+            bootstrap = bootstrap,
+            nthreads = nthreads,
+            intersect = intersect
             )
         }
     }
