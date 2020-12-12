@@ -120,14 +120,19 @@ combined_fasta = Map(function(x,y){c(x,y)}, expr_fasta_subset, snv_fasta_subset)
 combined_model = rep(list(c("ORDERED+ASC","GTR+G+ASC")), length(combined_fasta))
 combined_outdir = paste0("combined", c("", num2char(densities)))
 # combined analysis on the subset
-iqtrees_partition(
-    make_arglist(combined_fasta, combined_model, combined_outdir),
-    outdir=file.path("phylo", "ML"), intersect=TRUE
-    )
+#iqtrees_partition(
+#    make_arglist(combined_fasta, combined_model, combined_outdir),
+#    outdir=file.path("phylo", "ML"), intersect=TRUE, empty=c("-", "N")
+#    )
 
 # BI phylogenetic analysis
-#beasts(
-#    snv_fasta_subset,
-#    template = filepath("templates", "ExpStrictGtr.xml"),
-#    outdir = file.path("phylo", "BI")
-#    )
+beasts(
+    snv_fasta_subset,
+    template = file.path("templates", "ExpStrictGtr.xml"),
+    outdir = file.path("phylo", "BI")
+    )
+beasts(
+    expr_fasta_subset,
+    template = file.path("templates", "ExpStrictOrdered.xml"),
+    outdir = file.path("phylo", "BI")
+    )
