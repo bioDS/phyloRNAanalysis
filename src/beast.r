@@ -16,9 +16,16 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
     phyloRNA::mkdir(outdir)
 
     prefix = beter:::basename_sans_ext(fasta)
+    if(file.exists(paste0(prefix, ".tree")))
+        return(invisible(NULL))
 
     beastxml = paste0(prefix, ".xml")
-    beter::process_template(template, file.path(outdir, beastxml), alignment=fasta, parameters=params)
+    beter::process_template(
+        template,
+        file.path(outdir, beastxml),
+        alignment = fasta,
+        parameters = params
+        )
 
     beast_args = c(
         "-beagle_CPU",
