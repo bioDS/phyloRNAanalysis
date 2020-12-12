@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" required="" version="2.6">
+
+
+{{{sequences}}}
+
+
+    <map name="Uniform" >beast.math.distributions.Uniform</map>
+
+    <map name="Exponential" >beast.math.distributions.Exponential</map>
+
+    <map name="LogNormal" >beast.math.distributions.LogNormalDistributionModel</map>
+
+    <map name="Normal" >beast.math.distributions.Normal</map>
+
+    <map name="Beta" >beast.math.distributions.Beta</map>
+
+    <map name="Gamma" >beast.math.distributions.Gamma</map>
+
+    <map name="LaplaceDistribution" >beast.math.distributions.LaplaceDistribution</map>
+
+    <map name="prior" >beast.math.distributions.Prior</map>
+
+    <map name="InverseGamma" >beast.math.distributions.InverseGamma</map>
+
+    <map name="OneOnX" >beast.math.distributions.OneOnX</map>
+
+    <run id="mcmc" spec="MCMC" chainLength="80000000">
+
+        <state id="state" spec="State" storeEvery="5000">
+
+            <tree id="Tree.t" spec="beast.evolution.tree.Tree" name="stateNode">
+
+
+                <taxonset id="TaxonSet" spec="TaxonSet">
+                    <alignment idref="{{alignment_id}}"/>
+
+                </taxonset>
+
+            </tree>
+
+            <!-- Need to figure out how to do this thing automatically with BETER -->
+            <parameter id="freqParameter.s" spec="parameter.RealParameter" dimension="5" lower="0.0" name="stateNode" upper="1.0">0.20</parameter>
+
+            <parameter id="ePopSize.t" spec="parameter.RealParameter" name="stateNode">0.3</parameter>
+
+            <parameter id="growthRate.t" spec="parameter.RealParameter" name="stateNode">3.0E-4</parameter>
+
+        </state>
+
+        <init id="RandomTree.t" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t" taxa="@{{alignment_id}}">
+
+            <populationModel id="ConstantPopulation0.t" spec="ConstantPopulation">
+
+                <parameter id="randomPopSize.t" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+
+            </populationModel>
+
+        </init>
+
+        <distribution id="posterior" spec="util.CompoundDistribution">
+
+            <distribution id="prior" spec="util.CompoundDistribution">
+
+                <distribution id="CoalescentExponential.t" spec="Coalescent">
+
+                    <populationModel id="ExponentialGrowth.t" spec="ExponentialGrowth" growthRate="@growthRate.t" popSize="@ePopSize.t"/>
+
+                    <treeIntervals id="TreeIntervals.t" spec="TreeIntervals" tree="@Tree.t"/>
+
+                </distribution>
+
+                <prior id="ePopSizePrior.t" name="distribution" x="@ePopSize.t">
+
+                    <OneOnX id="OneOnX.1" name="distr"/>
+
+                </prior>
+
+                <prior id="GrowthRatePrior.t" name="distribution" x="@growthRate.t">
+
+                    <LaplaceDistribution id="LaplaceDistribution.0" name="distr">
+
+                        <parameter id="RealParameter.13" spec="parameter.RealParameter" estimate="false" name="mu">0.001</parameter>
+
+                        <parameter id="RealParameter.14" spec="parameter.RealParameter" estimate="false" name="scale">30.701135</parameter>
+
+                    </LaplaceDistribution>
+
+                </prior>
+
+
+            </distribution>
+
+            <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
+
+                <distribution id="treeLikelihood" spec="ThreadedTreeLikelihood" data="@{{alignment_id}}" tree="@Tree.t" useAmbiguities="true">
+
+                    <siteModel id="SiteModel.s" spec="SiteModel">
+
+                        <parameter id="mutationRate.s" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
+
+                        <parameter id="gammaShape.s" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+
+                        <parameter id="proportionInvariant.s" spec="parameter.RealParameter" estimate="false" lower="0.0" name="proportionInvariant" upper="1.0">0.0</parameter>
+                            <!-- Figure out how to do stateNumber with Beter-->
+                            <substModel id="Ordinal.s" spec="Ordinal" stateNumber="5">
+                            <frequencies id="estimatedFreqs.s" spec="Frequencies" frequencies="@freqParameter.s"/>
+                        </substModel>
+                    </siteModel>
+
+                    <branchRateModel id="StrictClock.c" spec="beast.evolution.branchratemodel.StrictClockModel">
+
+                        <parameter id="clockRate.c" spec="parameter.RealParameter" estimate="false" name="clock.rate">1.0</parameter>
+
+                    </branchRateModel>
+
+                </distribution>
+
+            </distribution>
+
+        </distribution>
+
+        <operator id="FrequenciesExchanger.s" spec="DeltaExchangeOperator" delta="0.01" weight="0.1">
+
+            <parameter idref="freqParameter.s"/>
+
+        </operator>
+
+        <operator id="CoalescentExponentialTreeScaler.t" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t" weight="3.0"/>
+
+        <operator id="CoalescentExponentialTreeRootScaler.t" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t" weight="3.0"/>
+
+        <operator id="CoalescentExponentialUniformOperator.t" spec="Uniform" tree="@Tree.t" weight="30.0"/>
+
+        <operator id="CoalescentExponentialSubtreeSlide.t" spec="SubtreeSlide" tree="@Tree.t" weight="15.0"/>
+
+        <operator id="CoalescentExponentialNarrow.t" spec="Exchange" tree="@Tree.t" weight="15.0"/>
+
+        <operator id="CoalescentExponentialWide.t" spec="Exchange" isNarrow="false" tree="@Tree.t" weight="3.0"/>
+
+        <operator id="CoalescentExponentialWilsonBalding.t" spec="WilsonBalding" tree="@Tree.t" weight="3.0"/>
+
+        <operator id="ePopSizeScaler.t" spec="ScaleOperator" parameter="@ePopSize.t" scaleFactor="0.75" weight="3.0"/>
+
+        <operator id="GrowthRateRandomWalk.t" spec="RealRandomWalkOperator" parameter="@growthRate.t" weight="3.0" windowSize="1.0"/>
+
+        <logger id="tracelog" spec="Logger" fileName="{{alignment_id}}.trace" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+
+            <log idref="posterior"/>
+
+            <log idref="likelihood"/>
+
+            <log idref="prior"/>
+
+            <log idref="treeLikelihood"/>
+
+            <log id="TreeHeight.t" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t"/>
+
+            <log idref="CoalescentExponential.t"/>
+
+            <log idref="ePopSize.t"/>
+
+            <log idref="growthRate.t"/>
+
+        </logger>
+
+        <logger id="screenlog" spec="Logger" logEvery="1000">
+
+            <log idref="posterior"/>
+
+            <log idref="likelihood"/>
+
+            <log idref="prior"/>
+
+        </logger>
+
+        <logger id="treelog.t" spec="Logger" fileName="{{alignment_id}}.trees" logEvery="1000" mode="tree">
+
+            <log id="TreeWithMetaDataLogger.t" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t"/>
+
+        </logger>
+
+        <operatorschedule id="OperatorSchedule" spec="OperatorSchedule"/>
+
+    </run>
+
+</beast>
