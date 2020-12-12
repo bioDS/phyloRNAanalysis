@@ -25,7 +25,7 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
         "-threads", nthreads,
         beastxml
         )
-    phyloRNA:::systemE("beast", args, dir=outdir)
+    phyloRNA:::systemE("beast", beast_args, dir=outdir)
 
     log_args = c(
         "-b", burnin,
@@ -56,6 +56,7 @@ beasts = function(fastas, template, outdir=NULL, nthreads=2, burnin=20, param=li
             outdir = file.path(outdir, beter:::basename_sans_ext(fasta)),
             nthreads = nthreads,
             burnin = burnin,
-            param = param)
+            param = param
+            )
         }
     }
