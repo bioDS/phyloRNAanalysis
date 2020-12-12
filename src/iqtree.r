@@ -54,7 +54,8 @@ iqtree_partition = function(
     bootstrap = 1000,
     nthreads = 8,
     remake = FALSE,
-    intersect = FALSE
+    intersect = FALSE,
+    empty = "N"
     ){
     if(is.null(outdir))
         outdir = "."
@@ -68,13 +69,19 @@ iqtree_partition = function(
     if(intersect){
         if(length(fasta) != 2)
             stop("This option works only for two fasta files")
-        fasta_intersect(fasta[1], fasta[2], xout=cfasta[1], yout=cfasta[2])
+        if(is.null(empty))
+            empty = c("N", "N")
+        fasta_intersect(
+            fasta[1], fasta[2],
+            xout=cfasta[1], yout=cfasta[2],
+            remove_constant=TRUE, xempty=empty[1], yempty=empty[2]
+            )
         } else {
         file.copy(fasta, cfasta)
         }
         
     nexus = file.path(outdir, "partition.nex")
-    generate_partition(fasta, model, nexus)
+    generate_partition(cfasta, model, nexus)
 
     command = "iqtree"
 
@@ -120,7 +127,14 @@ generate_partition = function(fasta, model, file, name=NULL){
     }
 
 
-iqtrees_partition = function(arglist, outdir=NULL, bootstrap=1000, nthreads=8, intersect=FALSE){
+iqtrees_partition = function(
+    arglist,
+    outdir = NULL,
+    bootstrap = 1000,
+    nthreads = 8,
+    intersect = FALSE,
+    empty = NULL
+    ){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
@@ -131,7 +145,8 @@ iqtrees_partition = function(arglist, outdir=NULL, bootstrap=1000, nthreads=8, i
             outdir = file.path(outdir, args$outdir),
             bootstrap = bootstrap,
             nthreads = nthreads,
-            intersect = intersect
+            intersect = intersect,
+            empty = empty
             )
         }
     }

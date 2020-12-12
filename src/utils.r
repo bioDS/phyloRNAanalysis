@@ -107,6 +107,34 @@ write_fasta = function(fasta, file){
     }
 
 
+#' Transform fasta to table
+#'
+#' transform a named vector of sequences into a tabular format
+#'
+#' @param fasta a named vector of sequences, such as from `read_fasta`
+#' @param margin **optional** connect by either rows or columns
+#' @return a table of fasta sequences
+fasta2table = function(fasta, margin=1){
+    data = strsplit(fasta, "")
+    if(margin == 1)
+        data = do.call(rbind, data)
+    if(margin == 2)
+        data = do.call(cbind, data)
+    if(!margin %in% c(1,2))
+        stop("Margin must be either 1 or 2")
+
+    data
+    }
+
+remove_constant_pos = function(fasta, unknown="N"){
+    data = tasta2table(fasta, margin=1)
+    data = phyloRNA::remove_constant(data, margin=2, unknown=unknown)
+    data = apply(data, margin, function(x) paste0(x, collapse = ""))
+    data = paste0(">", names(data), "\n", data)
+    data
+    }
+
+
 #' Find sequences shared by two fasta files
 #'
 #' Read two fasta files, finds shared sequences and then write these sequences fasta files.
@@ -116,7 +144,16 @@ write_fasta = function(fasta, file){
 #' @param outdir **optional** an output directory for filtered fasta files
 #' @param xout **optional** an output path for filtered x fasta
 #' @param yout **optional** an output path for filtered y fasta
-fasta_intersect = function(x, y, outdir=NULL, xout=NULL, yout=NULL){
+#' @param remove_constant **optional** remove constant sites after reducing the dataset?
+#' @param xempty **optional** unknown data symbol for x fasta file
+#' @param yempty **optional** unknown data symbol for y fasta file
+fasta_intersect = function(
+    x, y,
+    outdir=NULL,
+    xout=NULL, yout=NULL,
+    remove_constant=FALSE,
+    xempty="N", yempty="N"
+    ){
     xseq = read_fasta(x)
     yseq = read_fasta(y)
     shared = intersect(names(xseq), names(yseq))
@@ -126,6 +163,11 @@ fasta_intersect = function(x, y, outdir=NULL, xout=NULL, yout=NULL){
 
     xseq = xseq[shared]
     yseq = yseq[shared]
+
+    if(remove_constant){
+        xseq = remove_constant(xseq, xempty)
+        yseq = remove_constant(yseq, yempty)
+        }
 
     if(is.null(outdir))
         outdir = "."
