@@ -15,7 +15,7 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
         outdir = "."
     phyloRNA::mkdir(outdir)
 
-    prefix = better:::basename_sans_ext(fasta)
+    prefix = beter:::basename_sans_ext(fasta)
 
     beastxml = paste0(prefix, ".xml")
     beter::process_template(template, file.path(outdir, beastxml), alignment=fasta, parameters=params)
@@ -53,7 +53,7 @@ beasts = function(fastas, template, outdir=NULL, nthreads=2, burnin=20, param=li
         beast(
             fasta = fasta,
             template = template,
-            outdir = file.path(outdir, better:::basename_sans_ext(fasta)),
+            outdir = file.path(outdir, beter:::basename_sans_ext(fasta)),
             nthreads = nthreads,
             burnin = burnin,
             param = param)
