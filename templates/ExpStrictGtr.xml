@@ -164,9 +164,9 @@
 
             </distribution>
 
-            <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true" useAmbiguities="true">
+            <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true" >
 
-                <distribution id="treeLikelihood.all" spec="ThreadedTreeLikelihood" data="@{{alignment_id}" tree="@Tree.t">
+                <distribution id="treeLikelihood.all" spec="ThreadedTreeLikelihood" data="@{{alignment_id}}" tree="@Tree.t" useAmbiguities="true">
 
                     <siteModel id="SiteModel.s" spec="SiteModel">
 
@@ -232,7 +232,7 @@
 
         <operator id="GrowthRateRandomWalk.t" spec="RealRandomWalkOperator" parameter="@growthRate.t" weight="3.0" windowSize="1.0"/>
 
-        <logger id="tracelog" spec="Logger" fileName="$(tree).trace" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+        <logger id="tracelog" spec="Logger" fileName="{{alignment_id}}.trace" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
 
             <log idref="posterior"/>
 
@@ -274,7 +274,7 @@
 
         </logger>
 
-        <logger id="treelog.t" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+        <logger id="treelog.t" spec="Logger" fileName="{{alignment_id}}.trees" logEvery="1000" mode="tree">
 
             <log id="TreeWithMetaDataLogger.t" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t"/>
 
