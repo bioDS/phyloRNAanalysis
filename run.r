@@ -112,8 +112,18 @@ snv_fasta = table2fasta(snv_filtered$filter, outdir="fasta")
 snv_fasta_subset = table2fasta(snv_filtered$subset, outdir="fasta")
 
 # IQtree phylogenetic analysis:
-iqtrees(c(expr_fasta, expr_fasta_subset), model="ORDERED+ASC", outdir=file.path("phylo", "ML"))
-iqtrees(c(snv_fasta, snv_fasta_subset), model="GTR+G+ASC", outdir=file.path("phylo", "ML"))
+iqtrees(
+    c(expr_fasta, expr_fasta_subset),
+    model="ORDERED+ASC",
+    outdir=file.path("phylo", "ML"),
+    iter=2000
+    )
+iqtrees(
+    c(snv_fasta, snv_fasta_subset),
+    model="GTR+G+ASC",
+    outdir=file.path("phylo", "ML"),
+    iter=2000
+    )
 
 # connect fasta and snv
 combined_fasta = Map(function(x,y){c(x,y)}, expr_fasta_subset, snv_fasta_subset)
@@ -133,6 +143,6 @@ beasts(
     )
 beasts(
     expr_fasta_subset,
-    template = file.path("templates", "ExpStrictOrdered.xml"),
+    template = file.path("templates", "ExpStrictOrdinal.xml"),
     outdir = file.path("phylo", "BI")
     )
