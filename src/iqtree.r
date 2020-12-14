@@ -10,7 +10,7 @@
 #' @param model a phylogenetic model for IQtree
 #' @param bootstrap a number of replicates for the ultrafast bootstrap
 #' @param nthreads a number of threads to run the IQtree on
-iqtree = function(fasta, model, outdir, bootstrap=1000, nthreads=8, remake=FALSE){
+iqtree = function(fasta, model, outdir, bootstrap=1000, nthreads=8, iter=1000, remake=FALSE){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
@@ -27,7 +27,8 @@ iqtree = function(fasta, model, outdir, bootstrap=1000, nthreads=8, remake=FALSE
         "-s", cfasta,
         "-nt", nthreads,
         "-m", model,
-        "-B", bootstrap
+        "-B", bootstrap,
+        "-nm", iter
         )
     if(remake)
         args = c(args, "--redo")
@@ -36,14 +37,14 @@ iqtree = function(fasta, model, outdir, bootstrap=1000, nthreads=8, remake=FALSE
     }
 
 
-iqtrees = function(fastas, model, outdir=NULL, bootstrap=1000, nthreads=8){
+iqtrees = function(fastas, model, outdir=NULL, bootstrap=1000, nthreads=8, iter=1000){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
 
     for(fasta in fastas){
         subdir = file.path(outdir, basename(tools::file_path_sans_ext(fasta)))
-        iqtree(fasta, model, subdir, bootstrap, nthreads)
+        iqtree(fasta, model, subdir, bootstrap, nthreads, iter=iter)
         }
     }
 
@@ -53,6 +54,7 @@ iqtree_partition = function(
     outdir = NULL,
     bootstrap = 1000,
     nthreads = 8,
+    iter = 1000,
     remake = FALSE,
     intersect = FALSE,
     empty = "N"
@@ -88,7 +90,8 @@ iqtree_partition = function(
     args = c(
         "-p", nexus,
         "-nt", nthreads,
-        "-B", bootstrap
+        "-B", bootstrap,
+        "-nm", iter
         )
 
     if(remake)
@@ -133,7 +136,8 @@ iqtrees_partition = function(
     bootstrap = 1000,
     nthreads = 8,
     intersect = FALSE,
-    empty = NULL
+    empty = NULL,
+    iter = 1000
     ){
     if(is.null(outdir))
         outdir = "."
@@ -146,7 +150,8 @@ iqtrees_partition = function(
             bootstrap = bootstrap,
             nthreads = nthreads,
             intersect = intersect,
-            empty = empty
+            empty = empty,
+            iter = iter
             )
         }
     }
