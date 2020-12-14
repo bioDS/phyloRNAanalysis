@@ -16,38 +16,47 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
     phyloRNA::mkdir(outdir)
 
     prefix = beter:::basename_sans_ext(fasta)
-    if(file.exists(paste0(prefix, ".tree")))
-        return(invisible(NULL))
 
-    beastxml = paste0(prefix, ".xml")
-    beter::process_template(
-        template,
-        file.path(outdir, beastxml),
-        alignment = fasta,
-        parameters = params
-        )
+    beastxml = file.path(outdir, paste0(prefix, ".xml"))
+    trace = file.path(outdir, paste0(prefix, ".trace"))
+    trees = file.path(outdir, paste0(prefix, ".trees"))
+    ess = file.path(outdir, paste0(prefix, ".txt"))
+    tree = file.path(outdir, paste0(prefix, ".tree"))
+
+    if(!file.exists(beastxml))
+        beter::process_template(
+            template,
+            beastxml,
+            alignment = fasta,
+            parameters = params
+            )
 
     beast_args = c(
         "-beagle_CPU",
         "-threads", nthreads,
-        beastxml
+        basename(beastxml)
         )
-    phyloRNA:::systemE("beast", beast_args, dir=outdir)
+    if(!file.exists(trace))
+        phyloRNA:::systemE("beast", beast_args, dir=outdir)
 
     log_args = c(
         "-b", burnin,
-        paste0(prefix, ".trace"),
+        basename(trace),
         ">",
-        paste0(prefix, ".txt")
+        basename(ess)
         )
-    phyloRNA:::systemE("loganalyser", log_args, dir=outdir)
+    if(!file.exists(ess))
+        phyloRNA:::systemE("loganalyser", log_args, dir=outdir)
 
     tree_args = c(
         "-b", burnin,
-        paste0(prefix, ".trees"),
-        paste0(prefix, ".tree")
+        "-lowMem",
+        basename(trees),
+        basename(tree)
         )
-    phyloRNA:::systemE("treeannotator", tree_args, dir=outdir)
+
+    if(!file.exists(tree))
+        phyloRNA:::systemE("treeannotator", tree_args, dir=outdir)
     }
 
 
