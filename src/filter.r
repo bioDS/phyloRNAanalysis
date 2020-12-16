@@ -12,13 +12,6 @@ column_density = function(x, empty, sort=TRUE){
     }
 
 
-is_empty = function(x, empty){
-    if(is.na(empty))
-        return(!is.na(x))
-    x != empty
-    }
-
-
 #' Divide vector into categories
 #'
 #' Divide vector into list of categories using the pattern and replace substitution.
@@ -91,9 +84,6 @@ select = function(x, selection, pattern=".*-", replace="", empty=NA){
     }
 
 
-mdensity = function(x, empty){
-    sum(is_empty(x, empty)) / prod(dim(x))
-    }
 
 
 #' Remove rows with no data

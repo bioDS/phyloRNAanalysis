@@ -179,3 +179,26 @@ fasta_intersect = function(
     write_fasta(xseq, xout)
     write_fasta(yseq, yout)
     }
+
+
+#' Calculate data density of matrix
+#'
+#' Calculate the data density, that is the proportion of known elements in the matrix.
+#' @param x a matrix
+#' @param empty an unknown element
+#' @return a data density of matrix
+mdensity = function(x, empty){
+    sum(is_empty(x, empty)) / prod(dim(x))
+    }
+
+
+#' Test if an element is unknown
+#'
+#' @param x vector or matrix
+#' @param empty an unknown element
+#' @return vector or matrix 
+is_empty = function(x, empty){
+    if(is.na(empty))
+        return(!is.na(x))
+    x != empty
+    }
