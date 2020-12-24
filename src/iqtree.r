@@ -30,7 +30,7 @@ iqtree = function(
     command = "iqtree"
     args = c(
         "-s", cfasta,
-        "-nt", nthreads,
+        "-nt", nthreads
         )
     if(!is.null(model))
         args = c(args, "--model", model)
