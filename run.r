@@ -125,12 +125,12 @@ iqtrees(
 # BI phylogenetic analysis
 beasts(
     snv_fasta_subset,
-    template = file.path("templates", "ExpStrictGtr.xml"),
+    template = file.path("templates", "BDStrictGtr.xml"),
     outdir = file.path("phylo", "BI")
     )
 beasts(
     expr_fasta_subset,
-    template = file.path("templates", "ExpStrictOrdinal.xml"),
+    template = file.path("templates", "BDStrictOrdinal.xml"),
     outdir = file.path("phylo", "BI")
     )
 
