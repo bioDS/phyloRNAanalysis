@@ -116,13 +116,10 @@ iqtrees(
     c(expr_fasta, expr_fasta_subset),
     model="ORDERED+ASC",
     outdir=file.path("phylo", "ML"),
-    iter=2000
     )
 iqtrees(
     c(snv_fasta, snv_fasta_subset),
-    model="GTR+G+ASC",
     outdir=file.path("phylo", "ML"),
-    iter=2000
     )
 
 # connect fasta and snv
