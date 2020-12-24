@@ -114,12 +114,14 @@ snv_fasta_subset = table2fasta(snv_filtered$subset, outdir="fasta")
 # IQtree phylogenetic analysis:
 iqtrees(
     c(expr_fasta, expr_fasta_subset),
-    model="ORDERED+ASC",
-    outdir=file.path("phylo", "ML"),
+    model = "ORDERED+ASC",
+    outdir = file.path("phylo", "ML"),
+    ufboot = FALSE, bootstrap = 100
     )
 iqtrees(
     c(snv_fasta, snv_fasta_subset),
-    outdir=file.path("phylo", "ML"),
+    outdir = file.path("phylo", "ML"),
+    ufboot = FALSE, bootstrap = 100
     )
 
 # BI phylogenetic analysis

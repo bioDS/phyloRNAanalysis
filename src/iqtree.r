@@ -10,7 +10,12 @@
 #' @param model a phylogenetic model for IQtree
 #' @param bootstrap a number of replicates for the ultrafast bootstrap
 #' @param nthreads a number of threads to run the IQtree on
-iqtree = function(fasta, model, outdir, bootstrap=1000, nthreads=8, iter=1000, remake=FALSE){
+iqtree = function(
+    fasta,
+    model = NULL, outdir = NULL,
+    bootstrap = 1000, ufboot = TRUE,
+    nthreads = "AUTO", remake = FALSE
+    ){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
@@ -26,10 +31,13 @@ iqtree = function(fasta, model, outdir, bootstrap=1000, nthreads=8, iter=1000, r
     args = c(
         "-s", cfasta,
         "-nt", nthreads,
-        "-m", model,
-        "-B", bootstrap,
-        "-nm", iter
         )
+    if(!is.null(model))
+        args = c(args, "--model", model)
+    if(ufboot)
+        args = c(args, "-B", bootstrap)
+    if(!ufboot)
+        args = c(args, "-b", bootstrap)
     if(remake)
         args = c(args, "--redo")
         
@@ -37,14 +45,14 @@ iqtree = function(fasta, model, outdir, bootstrap=1000, nthreads=8, iter=1000, r
     }
 
 
-iqtrees = function(fastas, model, outdir=NULL, bootstrap=1000, nthreads=8, iter=1000){
+iqtrees = function(fastas, model=NULL, outdir=NULL, bootstrap=1000, ufboot=TRUE, nthreads="AUTO"){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
 
     for(fasta in fastas){
         subdir = file.path(outdir, basename(tools::file_path_sans_ext(fasta)))
-        iqtree(fasta, model, subdir, bootstrap, nthreads, iter=iter)
+        iqtree(fasta, model, subdir, bootstrap, ufboot, nthreads)
         }
     }
 
