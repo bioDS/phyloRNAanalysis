@@ -47,7 +47,7 @@ source("src/expr.r")
 source("src/snv.r")
 source("src/iqtree.r")
 source("src/beast.r") # -- move this into the `beter` package
-
+source("src/stats.r")
 
 # datasets:
 bam = dir("data", full.names=TRUE)
@@ -146,3 +146,8 @@ beasts(
     template = file.path("templates", "ExpStrictOrdinal.xml"),
     outdir = file.path("phylo", "BI")
     )
+
+
+# Calculate some stats
+expr_stats(prepared$h5, unlist(expr_filtered), outdir="stats")
+snv_stats(snv_preprocessed, unlist(snv_filtered), outdir="stats")

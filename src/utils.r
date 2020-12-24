@@ -192,7 +192,7 @@ mdensity = function(x, empty){
     }
 
 
-#' Test if an element is unknown
+#' Test if an element is not unknown
 #'
 #' @param x vector or matrix
 #' @param empty an unknown element
