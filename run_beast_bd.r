@@ -115,7 +115,7 @@ snv_fasta_subset = table2fasta(snv_filtered$subset, outdir="fasta")
 beasts(
     snv_fasta_subset,
     template = file.path("templates", "BDStrictGtr.xml"),
-    outdir = file.path("BirhDeath")
+    outdir = file.path("BirthDeath")
     )
 beasts(
     expr_fasta_subset,
