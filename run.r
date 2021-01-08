@@ -39,6 +39,7 @@ devtools::install_github("biods/beter")
 
 library("phyloRNA")
 library("beter")
+library("parallel")
 
 source("src/utils.r")
 source("src/prepare.r")
@@ -112,16 +113,16 @@ snv_fasta = table2fasta(snv_filtered$filter, outdir="fasta")
 snv_fasta_subset = table2fasta(snv_filtered$subset, outdir="fasta")
 
 # IQtree phylogenetic analysis:
-iqtrees(
+iqtrees_par(
     c(expr_fasta, expr_fasta_subset),
     model = "ORDERED+ASC",
     outdir = file.path("phylo", "ML"),
-    ufboot = FALSE, bootstrap = 100
+    bootstrap = 100, nthreads = 32
     )
-iqtrees(
+iqtrees_par(
     c(snv_fasta, snv_fasta_subset),
     outdir = file.path("phylo", "ML"),
-    ufboot = FALSE, bootstrap = 100
+    bootstrap = 100, nthreads = 32
     )
 
 # BI phylogenetic analysis

@@ -45,6 +45,81 @@ iqtree = function(
     }
 
 
+iqboot = function(i, fasta, model = NULL){
+    command = "iqtree"
+    args = c(
+        "-s", fasta,
+        "-nt", 1,
+        "-bo 1",
+        "-pre", file.path(dirname(fasta),i),
+        "-quiet"
+        )
+    if(!is.null(model))
+        args = c(args, "--model", model)
+    system2(command, args)
+    }
+
+
+iqtree_par = function(
+    fasta,
+    model = NULL, outdir = NULL,
+    bootstrap = 100, nthreads = 8
+    ){
+    if(is.null(outdir))
+        outdir = "."
+    bootdir = file.path(outdir, "bootstrap")
+    phyloRNA::mkdir(outdir)
+    phyloRNA::mkdir(bootdir)
+
+    cfasta = file.path(outdir, basename(fasta))
+    cbfasta = file.path(bootdir, basename(fasta))
+
+    #if(file.exists(cfasta))
+    #    return(invisible())
+
+    file.copy(fasta, cfasta)
+    file.copy(fasta, cbfasta)
+
+    # Performs a single run
+    command = "iqtree"
+    args = c(
+        "-s", cfasta,
+        "-nt AUTO"
+        )
+    if(!is.null(model))
+        args = c(args, "--model", model)
+    system2(command, args)
+
+    # perform paralel version
+    mclapply(
+        seq_len(bootstrap),
+        iqboot,
+        model = model, fasta = cbfasta,
+        mc.cores = nthreads
+        )
+
+    # merge bootstrap files
+    outtree = paste0(cfasta, ".treefile")
+    boottree = file.path(outdir, "boottrees.new")
+    boottrees = dir(bootdir, pattern="boottrees$", full.names=TRUE)
+    file.append(boottree, boottrees)
+    # calculate consensus tree from bootstrap trees
+    phyloRNA:::systemE(command, c("-con -t", boottree))
+    # calculate bootstrap support on the ML tree
+    phyloRNA:::systemE(command, c("-sup", outtree, "-t", boottree))
+    }
+
+iqtrees_par = function(fastas, model=NULL, outdir=NULL, bootstrap=1000, nthreads=8){
+    if(is.null(outdir))
+        outdir = "."
+    phyloRNA::mkdir(outdir)
+
+    for(fasta in fastas){
+        subdir = file.path(outdir, basename(tools::file_path_sans_ext(fasta)))
+        iqtree_par(fasta, model, subdir, bootstrap, nthreads)
+        }
+    }
+
 iqtrees = function(fastas, model=NULL, outdir=NULL, bootstrap=1000, ufboot=TRUE, nthreads="AUTO"){
     if(is.null(outdir))
         outdir = "."
