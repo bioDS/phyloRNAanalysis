@@ -13,7 +13,7 @@ Windows and Mac are not supported by required software (e.g., Cellranger).
 ### Data files
 Place the BAM files from Moravec et al. into the `data` folder.
 
-Download the human reference genome GRch38v15 (no alt analysis set as non-uniquelly mapped reads are ignored) and common variants and place is in respective folders or modify the `reference`, `annotation` and `vcf` lines in the `run.r` file.
+Download the human reference genome GRch38v15 (no alt analysis set as non-uniquelly mapped reads are ignored) and common variants and place is in the `reference` or modify the `reference`, `annotation` and `vcf` lines in the `run.r` file.
 
 ### R packages:
 Following R packages are required:
