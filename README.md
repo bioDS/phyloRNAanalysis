@@ -56,3 +56,6 @@ Navigate to the analysis directory and type:
 ```{R}
 Rscript run.r
 ```
+
+## Processed files
+Pre-processed fasta files, trees and tests of phylogenetic clustering can be seen in the `processed_files` branch. These files are tracked with *Git Large File Storage* (LFS) extension.
