@@ -43,7 +43,7 @@ wget ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606/VCF/00-All.vcf.gz
 ### Filter annotation file:
 There is just one more thing. The newest version of `Cellranger` (version 5) does not accept an annotation file with extra scaffolds. This can be fixed by filtering the GTF file according to the fasta index file using the `phyloRNA` package:
 ```{bash}
-Rscript "phyloRNA::filter_gtf(GCA_000001405.15_GRCh38_full_analysis_set.refseq_annotation.gtf, GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai)"
+Rscript -e 'phyloRNA::filter_gtf("GCA_000001405.15_GRCh38_full_analysis_set.refseq_annotation.gtf", "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai")'
 ```
 
 ## Data

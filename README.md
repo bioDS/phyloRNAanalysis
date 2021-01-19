@@ -42,7 +42,7 @@ Pre-processed fasta files, trees and tests of phylogenetic clustering can be see
 ## Detailed instruction
 * install [required software](doc/required_software.md)
 * download R and Python [packages](doc/packages.md)
-* download [data and reference genome](required_files.md)
+* download [data and reference genome](doc/required_files.md)
 * [run](doc/run_analysis.md) the analysis
 
 ## Need help?
