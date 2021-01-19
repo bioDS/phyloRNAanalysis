@@ -33,10 +33,6 @@
 #'   -- BEAST: GTR, exponential pop growth, coalescent prior, strict clock, two runs
 #'
 
-# requires a github authentication token in .Renviron
-devtools::install_github("biods/phyloRNA")
-devtools::install_github("biods/beter")
-
 library("phyloRNA")
 library("beter")
 library("parallel")
@@ -54,9 +50,9 @@ source("src/stats.r")
 bam = dir("data", full.names=TRUE)
 
 # required reference files:
-reference = "reference/human_GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
-annotation = "reference/human_GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
-vcf = "reference/vcf/00-common_all.vcf.gz"
+reference = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
+annotation = "referencey/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
+vcf = "reference/00-common_all.vcf.gz"
 
 # Other settings:
 nthreads = 16
