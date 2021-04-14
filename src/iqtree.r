@@ -109,7 +109,7 @@ iqtree_par = function(
     phyloRNA:::systemE(command, c("-sup", outtree, "-t", boottree))
     }
 
-iqtrees_par = function(fastas, model=NULL, outdir=NULL, bootstrap=1000, nthreads=8){
+iqtrees_par = function(fastas, model=NULL, outdir=NULL, bootstrap=100, nthreads=8){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
