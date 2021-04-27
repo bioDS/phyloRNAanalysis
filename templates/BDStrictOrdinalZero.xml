@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" required="" version="2.6">
+
+
+{{{sequences}}}
+
+
+    <map name="Uniform" >beast.math.distributions.Uniform</map>
+
+    <map name="Exponential" >beast.math.distributions.Exponential</map>
+
+    <map name="LogNormal" >beast.math.distributions.LogNormalDistributionModel</map>
+
+    <map name="Normal" >beast.math.distributions.Normal</map>
+
+    <map name="Beta" >beast.math.distributions.Beta</map>
+
+    <map name="Gamma" >beast.math.distributions.Gamma</map>
+
+    <map name="LaplaceDistribution" >beast.math.distributions.LaplaceDistribution</map>
+
+    <map name="prior" >beast.math.distributions.Prior</map>
+
+    <map name="InverseGamma" >beast.math.distributions.InverseGamma</map>
+
+    <map name="OneOnX" >beast.math.distributions.OneOnX</map>
+
+    <run id="mcmc" spec="MCMC" chainLength="50000000">
+
+        <state id="state" spec="State" storeEvery="5000">
+
+            <tree id="Tree.t" spec="beast.evolution.tree.Tree" name="stateNode">
+
+
+                <taxonset id="TaxonSet" spec="TaxonSet">
+                    <alignment idref="{{alignment_id}}"/>
+
+                </taxonset>
+
+            </tree>
+
+            <!-- Need to figure out how to do this thing automatically with BETER -->
+            <parameter id="freqParameter.s" spec="parameter.RealParameter" dimension="6" lower="0.0" name="stateNode" upper="1.0">0.1670 0.1666 0.1666 0.1666 0.1666 0.1666</parameter>
+
+            <parameter id="BDBirthRate.t" spec="parameter.RealParameter" lower="0.0" name="stateNode" upper="10000.0">1.0</parameter>
+                    
+            <parameter id="BDDeathRate.t" spec="parameter.RealParameter" lower="0.0" name="stateNode" upper="1.0">0.5</parameter>
+
+        </state>
+
+        <init id="RandomTree.t" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t" taxa="@{{alignment_id}}">
+
+            <populationModel id="ConstantPopulation0.t" spec="ConstantPopulation">
+
+                <parameter id="randomPopSize.t" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+
+            </populationModel>
+
+        </init>
+
+        <distribution id="posterior" spec="util.CompoundDistribution">
+
+            <distribution id="prior" spec="util.CompoundDistribution">
+
+                <distribution id="BirthDeath.t" spec="beast.evolution.speciation.BirthDeathGernhard08Model" birthDiffRate="@BDBirthRate.t" relativeDeathRate="@BDDeathRate.t" tree="@Tree.t"/>
+
+                <prior id="BirthRatePrior.t" name="distribution" x="@BDBirthRate.t">
+                                    
+                    <Uniform id="Uniform.2" name="distr" upper="1000.0"/>
+                                
+                </prior>
+
+                <prior id="DeathRatePrior.t" name="distribution" x="@BDDeathRate.t">
+                                    
+                    <Uniform id="Uniform.3" name="distr"/>
+                                
+                </prior>
+
+            </distribution>
+
+            <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
+
+                <distribution id="treeLikelihood" spec="ThreadedTreeLikelihood" data="@{{alignment_id}}" tree="@Tree.t" useAmbiguities="true">
+
+                    <siteModel id="SiteModel.s" spec="SiteModel">
+
+                        <parameter id="mutationRate.s" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
+
+                        <parameter id="gammaShape.s" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+
+                        <parameter id="proportionInvariant.s" spec="parameter.RealParameter" estimate="false" lower="0.0" name="proportionInvariant" upper="1.0">0.0</parameter>
+                            <!-- Figure out how to do stateNumber with Beter-->
+                            <substModel id="Ordinal.s" spec="Ordinal" stateNumber="6">
+                            <frequencies id="estimatedFreqs.s" spec="Frequencies" frequencies="@freqParameter.s"/>
+                        </substModel>
+                    </siteModel>
+
+                    <branchRateModel id="StrictClock.c" spec="beast.evolution.branchratemodel.StrictClockModel">
+
+                        <parameter id="clockRate.c" spec="parameter.RealParameter" estimate="false" name="clock.rate">1.0</parameter>
+
+                    </branchRateModel>
+
+                </distribution>
+
+            </distribution>
+
+        </distribution>
+
+        <operator id="FrequenciesExchanger.s" spec="DeltaExchangeOperator" delta="0.01" weight="0.1">
+
+            <parameter idref="freqParameter.s"/>
+
+        </operator>
+
+        <operator id="BirthDeathTreeScaler.t" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t" weight="3.0"/>
+            
+        <operator id="BirthDeathTreeRootScaler.t" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t" weight="3.0"/>
+            
+        <operator id="BirthDeathUniformOperator.t" spec="Uniform" tree="@Tree.t" weight="30.0"/>
+            
+        <operator id="BirthDeathSubtreeSlide.t" spec="SubtreeSlide" tree="@Tree.t" weight="15.0"/>
+            
+        <operator id="BirthDeathNarrow.t" spec="Exchange" tree="@Tree.t" weight="15.0"/>
+            
+        <operator id="BirthDeathWide.t" spec="Exchange" isNarrow="false" tree="@Tree.t" weight="3.0"/>
+            
+        <operator id="BirthDeathWilsonBalding.t" spec="WilsonBalding" tree="@Tree.t" weight="3.0"/>
+            
+        <operator id="BirthRateScaler.t" spec="ScaleOperator" parameter="@BDBirthRate.t" scaleFactor="0.75" weight="3.0"/>
+            
+        <operator id="DeathRateScaler.t" spec="ScaleOperator" parameter="@BDDeathRate.t" scaleFactor="0.75" weight="3.0"/>
+
+        <logger id="tracelog" spec="Logger" fileName="{{alignment_id}}.trace" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+
+            <log idref="posterior"/>
+
+            <log idref="likelihood"/>
+
+            <log idref="prior"/>
+
+            <log idref="treeLikelihood"/>
+
+            <log id="TreeHeight.t" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t"/>
+
+            <log idref="BirthDeath.t"/>
+                    
+            <log idref="BDBirthRate.t"/>
+                    
+            <log idref="BDDeathRate.t"/>
+
+        </logger>
+
+        <logger id="screenlog" spec="Logger" logEvery="1000">
+
+            <log idref="posterior"/>
+
+            <log idref="likelihood"/>
+
+            <log idref="prior"/>
+
+        </logger>
+
+        <logger id="treelog.t" spec="Logger" fileName="{{alignment_id}}.trees" logEvery="1000" mode="tree">
+
+            <log id="TreeWithMetaDataLogger.t" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t"/>
+
+        </logger>
+
+        <operatorschedule id="OperatorSchedule" spec="OperatorSchedule"/>
+
+    </run>
+
+</beast>
