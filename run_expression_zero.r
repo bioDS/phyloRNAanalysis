@@ -29,6 +29,6 @@ iqtrees_par(
 
 beasts(
     expr_fasta_subset,
-    template = file.path("templates", "BDStrictOrdinal.xml"),
+    template = file.path("templates", "BDStrictOrdinalZero.xml"),
     outdir = file.path("phylo", "BIZero")
     )
