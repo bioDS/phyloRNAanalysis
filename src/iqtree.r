@@ -8,12 +8,13 @@
 #' @param fasta a fasta file
 #' @param outdir an output directory, fasta will be copied there
 #' @param model a phylogenetic model for IQtree
-#' @param bootstrap a number of replicates for the ultrafast bootstrap
+#' @param ufboot a number of replicates for the ultrafast bootstrap
+#' @param bootstrap a number of replicates for the standard bootstrap
 #' @param nthreads a number of threads to run the IQtree on
 iqtree = function(
     fasta,
     model = NULL, outdir = NULL,
-    bootstrap = 1000, ufboot = TRUE,
+    ufboot = FALSE, bootstrap = FALSE,
     nthreads = "AUTO", remake = FALSE
     ){
     if(is.null(outdir))
@@ -34,10 +35,14 @@ iqtree = function(
         )
     if(!is.null(model))
         args = c(args, "--model", model)
-    if(ufboot)
-        args = c(args, "-B", bootstrap)
-    if(!ufboot)
+    if(ufboot){
+        if(is.logical(ufboot)) ufboot = 1000
+        args = c(args, "-B", ufboot)
+        }
+    if(bootstrap){
+        if(is.logical(bootstrap)) bootstrap = 100
         args = c(args, "-b", bootstrap)
+        }
     if(remake)
         args = c(args, "--redo")
         
