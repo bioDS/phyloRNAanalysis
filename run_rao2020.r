@@ -55,9 +55,12 @@ main = function(){
         intervals = calculate_intervals(data, density=hdi)
         data = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
         
-        # Select 1000 cells:
-        best = names(colSums(data != "-"))[1:1000]
-        data = data[, best]
+        # Select 1000 cells: 500 from primary and methylation
+        best = names(colSums(data != "-"))
+        best_pr = grep("-pr", best, value=TRUE)[1:500]
+        best_met = grep("-met", best, value=TRUE)[1:500]
+        
+        data = data[, c(best_pr, best_met)]
         data = phyloRNA::remove_constant(data, margin=1, unknown="-")
         summary(data, file.path(outdir, "all_summary.txt"))
         data = phyloRNA::tab2seq(data, margin=2)
@@ -79,9 +82,12 @@ main = function(){
         intervals = calculate_intervals(data, density=hdi)
         data = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
         
-        # Select 1000 cells:
-        best = names(colSums(data != "-"))[1:1000]
-        data = data[, best]
+        # Select 1000 cells: 500 from primary and methylation
+        best = names(colSums(data != "-"))
+        best_pr = grep("-pr", best, value=TRUE)[1:500]
+        best_met = grep("-met", best, value=TRUE)[1:500]
+        
+        data = data[, c(best_pr, best_met)]
         data = phyloRNA::remove_constant(data, margin=1, unknown="-")
         summary(data, file.path(outdir, "cancer_summary.txt"))
         data = phyloRNA::tab2seq(data, margin=2)
