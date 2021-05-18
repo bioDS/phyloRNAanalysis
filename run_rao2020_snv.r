@@ -7,7 +7,7 @@ main = function(){
     fastqdir = file.path(outdir, "raw")
     refdir = "prepare/ref"
     countdir = file.path(outdir, "count")
-    gse = GSE140312
+    gse = "GSE140312"
     srr_download(gse, outdir)
 
 
