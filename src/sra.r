@@ -47,6 +47,7 @@ get_gsm_samples = function(gse){
     
     samples = esummary$samples
     colnames(samples) = c("gsm", "name")
+    samples
     }
 
 
