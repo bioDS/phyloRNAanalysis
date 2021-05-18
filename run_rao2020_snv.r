@@ -26,7 +26,7 @@ main = function(){
 
 srr_download = function(gse, outdir){
     samples = get_srr_samples(gse)
-    samples$name = gsub(" ", "_", sample$name)
+    samples$name = gsub(" ", "_", samples$name)
 
     mapply(samples$srr, samples$name, FUN=srr_download_sample, MoreArgs=list("outdir"=outdir))
     }
