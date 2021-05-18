@@ -1,4 +1,5 @@
 import::from("src/sra.r", "sra_download", "get_srr_samples")
+import::from("src/utils.r", "all.files.exists")
 import::from("magrittr", "%>%")
 
 main = function(){
