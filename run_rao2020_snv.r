@@ -6,7 +6,7 @@ main = function(){
     outdir = "rao2020"
     fastqdir = file.path(outdir, "raw")
     refdir = "prepare/ref"
-    countdir = file.path(outdir, count)
+    countdir = file.path(outdir, "count")
     gse = GSE140312
     srr_download(gse, outdir)
 
