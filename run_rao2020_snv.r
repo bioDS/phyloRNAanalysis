@@ -1,7 +1,7 @@
 import::from("src/sra.r", "sra_download", "get_srr_samples")
 import::from("magrittr", "%>%")
 
-main = function()
+main = function(){
     # Define variables:
     outdir = "rao2020"
     fastqdir = file.path(outdir, "raw")
@@ -59,4 +59,8 @@ srr_download_sample = function(srr, name, outdir){
         stop("ERROR: not all files exists.\\n", "Files: ", files)
     
     file.rename(srr_files, files)
+    }
+
+if(!interactive()){
+    main()
     }
