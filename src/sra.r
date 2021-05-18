@@ -1,6 +1,9 @@
 #' sra.r
 #'
 #' Function for a programatical access to a SRA and GEO databases
+import::here("magrittr", "%>%")
+import::here("xml2", "read_xml", "as_list")
+
 sra_download = function(srr, outdir){
     # Check if the srr fastq file or files already exists
     files = dir(outdir, pattern=paste0(srr, ".*\\.fastq.*"))
@@ -38,6 +41,8 @@ sra_dump = function(srr, outdir){
 get_srr_samples = function(gse){
     samples = get_gsm_samples(gse)
     samples$srr = sapply(samples$gsm, get_srr)
+    
+    samples
     }
 
 
@@ -65,5 +70,5 @@ get_srr = function(gsm){
 
 
 extract_attributes = function(x){
-    x %>% xml2::read_xml %>% xml2::as_list() %>% getElement("Run") %>% attributes
+    x %>% read_xml %>% as_list() %>% getElement("Run") %>% attributes
     }
