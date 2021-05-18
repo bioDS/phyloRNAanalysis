@@ -34,7 +34,7 @@ sra_dump = function(srr, outdir){
         "--origfmt",
         "--gzip"
         )
-    phyloRNA:::systemE(command, args, outdir=outdir)
+    phyloRNA:::systemE(command, args, dir=outdir)
     }
 
 
