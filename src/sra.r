@@ -36,7 +36,7 @@ sra_dump = function(srr, outdir){
 
 
 get_srr_samples = function(gse){
-    samples = get_gse_samples(gse)
+    samples = get_gsm_samples(gse)
     samples$srr = sapply(samples$gsm, get_srr)
     }
 
