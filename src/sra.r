@@ -30,7 +30,7 @@ sra_dump = function(srr, outdir){
     args = c(
         srr,
         "--split-files",
-        "--skip-technical",
+        #"--skip-technical", required for 10X
         "--origfmt",
         "--gzip"
         )
