@@ -9,7 +9,7 @@ main = function(){
     refdir = "prepare/ref"
     countdir = file.path(outdir, "count")
     gse = "GSE140312"
-    srr_download(gse, outdir)
+    srr_download(gse, fastqdir)
 
 
     # map with cellranger
