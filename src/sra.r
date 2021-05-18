@@ -26,8 +26,8 @@ sra_dump = function(srr, outdir){
     command = "fastq-dump"
     args = c(
         srr,
-        "--split-files"
-        "--skip-technical"
+        "--split-files",
+        "--skip-technical",
         "--origfmt",
         "--gzip"
         )
