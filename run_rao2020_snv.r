@@ -59,7 +59,7 @@ srr_download_sample = function(srr, name, outdir){
     if(!all.files.exists(srr_files))
         stop("ERROR: not all files exists.\\n", "Files: ", files)
     
-    file.rename(srr_files, files)
+    file.rename(srr_files, cellranger_files)
     }
 
 if(!interactive()){
