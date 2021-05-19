@@ -7,6 +7,7 @@ main = function(){
     outdir = "rao2020"
     fastqdir = file.path(outdir, "raw")
     refdir = "prepare/ref"
+    phyloRNA::mkdir(countdir)
     countdir = file.path(outdir, "count")
     gse = "GSE140312"
     samples = srr_download(gse, fastqdir)
