@@ -9,12 +9,16 @@ main = function(){
     refdir = "prepare/ref"
     countdir = file.path(outdir, "count")
     gse = "GSE140312"
-    srr_download(gse, fastqdir)
-
+    samples = srr_download(gse, fastqdir)
 
     # map with cellranger
-    phyloRNA::cellranger_count(fastqdir, refdir, countdir, nthreads=8)
-    
+    for(sample in samples){
+        phyloRNA::cellranger_count(
+            fastqdir, refdir, file.path(countdir, sample),
+            sample=sample, nthreads=8
+            )
+        }
+
     # preprocess SNVs
 
     # filter -> same selection as with expression
@@ -51,7 +55,7 @@ srr_download_sample = function(srr, name, outdir){
         )
 
     if(all.files.exists(cellranger_files))
-        return(invisible())
+        return(sample_name)
     
     # Download srr files and check if they exist/were downloaded correctly
     srr_files = file.path(outdir, paste0(srr, "_", 1:3, ".fastq.gz"))
@@ -60,6 +64,8 @@ srr_download_sample = function(srr, name, outdir){
         stop("ERROR: not all files exists.\\n", "Files: ", files)
     
     file.rename(srr_files, cellranger_files)
+    
+    sample_name
     }
 
 if(!interactive()){
