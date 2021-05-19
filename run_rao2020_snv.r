@@ -7,12 +7,15 @@ main = function(){
     outdir = "rao2020"
     fastqdir = file.path(outdir, "raw")
     refdir = "prepare/ref"
-    phyloRNA::mkdir(countdir)
     countdir = file.path(outdir, "count")
     gse = "GSE140312"
     samples = srr_download(gse, fastqdir)
 
-    # map with cellranger
+    # create directories
+    phyloRNA::mkdir(fastqdir)
+    phyloRNA::mkdir(countdir)
+    
+    # map with cellranger    
     for(sample in samples){
         phyloRNA::cellranger_count(
             fastqdir, refdir, file.path(countdir, sample),
