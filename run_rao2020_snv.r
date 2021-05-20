@@ -14,6 +14,10 @@ main = function(){
     gse = "GSE140312"
     samples = srr_download(gse, fastqdir)
 
+    # required reference files:
+    reference = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
+    annotation = "referencey/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
+    vcf = "reference/00-common_all.vcf.gz"
 
     # create directories
     phyloRNA::mkdir(fastqdir)
@@ -43,8 +47,7 @@ main = function(){
             bam_cleaned,
             reference=reference,
             vcf=vcf,
-            barcodes=barcodes_aligned,
-            outdir=cleandir        
+            barcodes=barcodes_aligned
             )
 
         phyloRNA::bamtagregex(bam_cleaned, bam_prepared, "CB", pattern, replace)
