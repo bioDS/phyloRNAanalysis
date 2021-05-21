@@ -1,8 +1,7 @@
 #' snv.r
 #'
 #' Functions for snv identification and filtering
-library("phyloRNA")
-library("data.table")
+
 
 #' Detect SNV for scRNAseq
 #'
@@ -35,8 +34,8 @@ detect_snv = function(
     if(phyloRNA::is_nn(vcm))
         vcm = file.path(outdir, paste0(core, ".vcm"))
 
-    mkdir(outdir)
-    mkdir(vcfdir)
+    phyloRNA::mkdir(outdir)
+    phyloRNA::mkdir(vcfdir)
 
     vcf = file.path(outdir, paste0(core, ".vcf"))
 
@@ -64,7 +63,7 @@ preprocess_snv = function(
     ){
     if(is.null(outdir))
         outdir = "."
-    mkdir(outdir)
+    phyloRNA::mkdir(outdir)
 
     vcm = detect_snv(bam, barcodes, reference, outdir=outdir, nthreads=nthreads)
 
@@ -85,7 +84,7 @@ preprocess_snv = function(
 filter_snv = function(vcm, selection, density=0.5, outdir=NULL){
     if(is.null(outdir))
         outdir = "."
-    mkdir(outdir)
+    phyloRNA::mkdir(outdir)
 
     prefix_filter = "snv"
     prefix_subset = "snv_subset"
