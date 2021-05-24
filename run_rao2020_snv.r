@@ -3,6 +3,7 @@ import::from("src/utils.r", "all.files.exists")
 import::from("src/snv.r", "preprocess_snv")
 import::from("src/prepare.r", "merge_files")
 import::from("magrittr", "%>%")
+import::from("phyloRNA", "tab2seq", "write_fasta")
 
 main = function(){
     # Define variables:
