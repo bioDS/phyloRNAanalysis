@@ -116,7 +116,7 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
                 paste0(selection[!match], collapse="\n")
                 )
             }
-        data = data[,match]
+        data = data[, ..match] # data.table subsetting
         }
 
     data = phyloRNA::remove_constant(data)
