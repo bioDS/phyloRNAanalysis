@@ -2,6 +2,7 @@ import::from("src/sra.r", "sra_download", "get_srr_samples")
 import::from("src/utils.r", "all.files.exists")
 import::from("src/snv.r", "preprocess_snv")
 import::from("src/prepare.r", "merge_files")
+import::from("src/iqtree.r", "iqtree")
 import::from("magrittr", "%>%")
 import::from("phyloRNA", "tab2seq", "write_fasta")
 
@@ -106,6 +107,9 @@ get_names = function(fasta){
 
 
 vcm2fasta = function(vcm, fasta, selection=NULL){
+    if(file.exists(fasta))
+        return(invisible())
+
     data = data.table::fread(vcm, header=TRUE)
     data = data[,-c(1:3)] # first three columns are not cells (chromosome, position, and reference)
     
