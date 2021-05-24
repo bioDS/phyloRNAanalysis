@@ -111,7 +111,8 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
     if(!is.null(selection)){
         match = selection %in% colnames(vcm)
         if(!all(match)){
-            stop("ERROR: Some requested cells are not present:\n",
+            stop("ERROR: ", sum(!match), " out of ", length(match),
+                " requested cells are not present:\n",
                 paste0(selection[!match], collapse="\n")
                 )
             }
@@ -165,7 +166,7 @@ srr_download_sample = function(srr, name, outdir){
     srr_files = file.path(outdir, paste0(srr, "_", 1:3, ".fastq.gz"))
     sra_download(srr, outdir)
     if(!all.files.exists(srr_files))
-        stop("ERROR: not all files exists.\\n", "Files: ", files)
+        warning("WARNING: not all files exists.\\n", "Files: ", files)
     
     file.rename(srr_files, cellranger_files)
     
