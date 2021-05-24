@@ -38,10 +38,16 @@ sra_dump = function(srr, outdir){
     }
 
 
-get_srr_samples = function(gse){
+get_srr_samples = function(gse, save=NULL){
+    if(!is.null(save) && file.exists(save))
+        return(readRDS(save))
+
     samples = get_gsm_samples(gse)
     samples$srr = sapply(samples$gsm, get_srr)
-    
+
+    if(!is.null(save))
+        saveRDS(samples, save)
+
     samples
     }
 
