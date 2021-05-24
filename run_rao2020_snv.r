@@ -85,13 +85,13 @@ main = function(){
     # iqtree
     iqtree(
         cancer_fasta,
-        model="ASC",
+        model="TEST",
         file.path(outdir, "snv", "cancer")
         )
 
     iqtree(
         all_fasta,
-        model="ASC",
+        model="TEST",
         file.path(outdir, "snv", "all")
         )
     }
