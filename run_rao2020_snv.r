@@ -109,7 +109,7 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
     data = data[,-c(1:3)] # first three columns are not cells (chromosome, position, and reference)
     
     if(!is.null(selection)){
-        match = selection %in% colnames(vcm)
+        match = selection %in% colnames(data)
         if(!all(match)){
             stop("ERROR: ", sum(!match), " out of ", length(match),
                 " requested cells are not present:\n",
