@@ -112,7 +112,7 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
         match = selection %in% colnames(vcm)
         if(!all(match)){
             stop("ERROR: Some requested cells are not present:\n",
-                paste0(selection[match], collapse="\n")
+                paste0(selection[!match], collapse="\n")
                 )
             }
         data = data[,match]
