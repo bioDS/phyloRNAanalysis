@@ -120,6 +120,7 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
         data = data[, ..match] # data.table subsetting
         }
 
+    data = as.matrix(data)
     data = phyloRNA::remove_constant(data)
     seq = tab2seq(data, 2)
     write_fasta(seq, fasta)
