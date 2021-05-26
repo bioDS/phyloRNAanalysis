@@ -1,8 +1,6 @@
 #' utils.r
 #'
 #' shared utility functions
-library("tools")
-library("phyloRNA")
 
 #' Write a table
 #'
