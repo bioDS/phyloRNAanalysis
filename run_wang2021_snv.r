@@ -1,7 +1,9 @@
 import::from("src/sra.r", "sra_download", "get_srr_samples")
 import::from("src/utils.r", "all.files.exists")
 import::from("src/snv.r", "preprocess_snv")
+import::from("src/iqtree.r", "iqtree")
 import::from("magrittr", "%>%")
+import::from("phyloRNA", "tab2seq", "write_fasta")
 
 main = function(){
     # Define variables:
