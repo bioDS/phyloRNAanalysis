@@ -92,14 +92,14 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
     data = data[,-c(1:3)] # first three columns are not cells (chromosome, position, and reference)
     
     if(!is.null(selection)){
-        match = selection %in% colnames(vcm)
+        match = selection %in% colnames(data)
         if(!all(match)){
             warning("WARNING: ", sum(!match), " out of ", length(match),
                 " requested cells are not present:\n",
                 paste0(selection[!match], collapse="\n")
                 )
             }
-        data = data[,match]
+        data = data[,..match]
         }
 
     data = as.matrix(data)
