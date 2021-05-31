@@ -32,7 +32,6 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
             )
 
     beast_args = c(
-        "-beagle_CPU",
         "-threads", nthreads,
         basename(beastxml)
         )
