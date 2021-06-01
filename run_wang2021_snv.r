@@ -5,6 +5,8 @@ import::from("src/iqtree.r", "iqtree")
 import::from("src/beast.r", "beast")
 import::from("magrittr", "%>%")
 import::from("phyloRNA", "tab2seq", "write_fasta")
+import::from("parallel", "mcmapply")
+
 
 main = function(){
     # Define variables:
@@ -57,17 +59,17 @@ main = function(){
     vcm2fasta(vcm, gc1_fasta, gc1)
     vcm2fasta(vcm, gc2_fasta, gc2)
     vcm2fasta(vcm, gc3_fasta, gc3)
-    
+
+    fastas = c(gc1_fasta, gc2_fasta, gc3_fasta)
+    outdirs_ml = file.path(snvdir, c("GC1", "GC2", "GC3"), "ML")
+    outdirs_bi = file.path(snvdir, c("GC1", "GC2", "GC3"), "BI")
+
     # run IQtree
-    iqtree(gc1_fasta, model="TEST", file.path(snvdir, "gc1", "ML"))
-    iqtree(gc2_fasta, model="TEST", file.path(snvdir, "gc2", "ML"))
-    iqtree(gc3_fasta, model="TEST", file.path(snvdir, "gc3", "ML"))
+    mcmapply(FUN=iqtree, fastas, "TEST", outdirs_ml, mc.cores=3)
 
     # run BEAST
     template = file.path("templates", "BDStrictGtr.xml")
-    beast(gc1_fasta, template, file.path(snvdir, "gc1", "BI"))
-    beast(gc2_fasta, template, file.path(snvdir, "gc2", "BI"))
-    beast(gc3_fasta, template, file.path(snvdir, "gc3", "BI"))
+    mcmapply(FUN=beast, fastas, template, outdirs_bi, mc.cores=3)
     }
 
 
@@ -107,8 +109,9 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
                 " requested cells are not present:\n",
                 paste0(selection[!match], collapse="\n")
                 )
+            selection = selection[match]
             }
-        data = data[,..selection[match]]
+        data = data[,..selection]
         }
 
     data = as.matrix(data)

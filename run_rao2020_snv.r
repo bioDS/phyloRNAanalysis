@@ -5,6 +5,8 @@ import::from("src/prepare.r", "merge_files")
 import::from("src/iqtree.r", "iqtree")
 import::from("magrittr", "%>%")
 import::from("phyloRNA", "tab2seq", "write_fasta")
+import::from("parallel", "mcmapply")
+
 
 main = function(){
     # Define variables:
@@ -82,17 +84,14 @@ main = function(){
     vcm2fasta(vcm, cancer_fasta, cancer_names)
     vcm2fasta(vcm, all_fasta, all_names)
 
-    # iqtree
-    iqtree(
-        cancer_fasta,
-        model="TEST",
-        file.path(outdir, "snv", "cancer")
-        )
+    fastas = c(cancer_fasta, all_fasta)
+    outdirs = file.path(outdir, "snv", c("cancer", "all"))
 
-    iqtree(
-        all_fasta,
-        model="TEST",
-        file.path(outdir, "snv", "all")
+
+    # iqtree
+    mcmapply(
+        fastas, outdirs,
+        FUN=iqtree, MoreArgs=list("model"="TEST"), mc.cores=2
         )
     }
 
@@ -120,8 +119,9 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
                 " requested cells are not present:\n",
                 paste0(selection[!match], collapse="\n")
                 )
+            selection = selection[match]
             }
-        data = data[, ..selection[match]] # data.table subsetting
+        data = data[, ..selection] # data.table subsetting
         }
 
     data = as.matrix(data)
