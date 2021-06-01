@@ -121,7 +121,7 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
                 paste0(selection[!match], collapse="\n")
                 )
             }
-        data = data[, ..match] # data.table subsetting
+        data = data[, ..selection[match]] # data.table subsetting
         }
 
     data = as.matrix(data)

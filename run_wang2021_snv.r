@@ -2,6 +2,7 @@ import::from("src/sra.r", "sra_download", "get_srr_samples")
 import::from("src/utils.r", "all.files.exists")
 import::from("src/snv.r", "preprocess_snv")
 import::from("src/iqtree.r", "iqtree")
+import::from("src/beast.r", "beast")
 import::from("magrittr", "%>%")
 import::from("phyloRNA", "tab2seq", "write_fasta")
 
@@ -58,9 +59,15 @@ main = function(){
     vcm2fasta(vcm, gc3_fasta, gc3)
     
     # run IQtree
-    iqtree(gc1_fasta, model="TEST", file.path(snvdir, "gc1"))
-    iqtree(gc2_fasta, model="TEST", file.path(snvdir, "gc2"))
-    iqtree(gc3_fasta, model="TEST", file.path(snvdir, "gc3"))
+    iqtree(gc1_fasta, model="TEST", file.path(snvdir, "gc1", "ML"))
+    iqtree(gc2_fasta, model="TEST", file.path(snvdir, "gc2", "ML"))
+    iqtree(gc3_fasta, model="TEST", file.path(snvdir, "gc3", "ML"))
+
+    # run BEAST
+    template = file.path("templates", "BDStrictGtr.xml")
+    beast(gc1_fasta, template, file.path(snvdir, "gc1", "BI"))
+    beast(gc2_fasta, template, file.path(snvdir, "gc2", "BI"))
+    beast(gc3_fasta, template, file.path(snvdir, "gc3", "BI"))
     }
 
 
@@ -101,7 +108,7 @@ vcm2fasta = function(vcm, fasta, selection=NULL){
                 paste0(selection[!match], collapse="\n")
                 )
             }
-        data = data[,..match]
+        data = data[,..selection[match]]
         }
 
     data = as.matrix(data)
