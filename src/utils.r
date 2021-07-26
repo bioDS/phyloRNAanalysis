@@ -66,7 +66,8 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
 
     for(i in seq_along(file)){
         data = read_table(file[i])
-        phyloRNA::fasta(data, margin=margin, file=fasta[i])
+        seq = phyloRNA::tab2seq(data, margin=margin)
+        phyloRNA::write_fasta(seq, file=fasta[i])
         }
 
     invisible(fasta)
