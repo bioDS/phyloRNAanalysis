@@ -127,8 +127,13 @@ density_filenames = function(outdir, prefix, density){
 #' @param empty missing value specification
 #' @param outdir an output directory
 #' @param prefix a prefix for output files
+#' @param replace replace missing value with this character
 #' @return vector of paths for filtered datasets
-density_filtering = function(x, density=0.5, empty="N", outdir=NULL, prefix=NULL){
+density_filtering = function(
+    x, density=0.5, empty="N",
+    outdir=NULL, prefix=NULL,
+    replace=NULL
+    ){
     if(is.null(outdir))
         outdir = "."
     if(is.null(prefix))
@@ -142,6 +147,8 @@ density_filtering = function(x, density=0.5, empty="N", outdir=NULL, prefix=NULL
 
     for(i in seq_along(density)){
         filtered = phyloRNA::densest_subset(x, empty=empty, density=density[i])$result
+        if(!is.null(replace))
+            filtered = replace_missing(filtered, empty, replace)
         filtered = phyloRNA::remove_constant(filtered, margin=1, unknown=empty)
         write_table(filtered, outfile[i])
         }
@@ -150,6 +157,21 @@ density_filtering = function(x, density=0.5, empty="N", outdir=NULL, prefix=NULL
     }
 
 
+replace_missing = function(data, missing, replace){
+    replace = as.character(replace)
+    if(length(replace) != 1)
+        stop("ERROR: Provide exactly one character as a replacement")
+    if(nchar(replace) != 1)
+        stop("ERROR: Provide exactly one character as a replacement")
+
+    if(is.null(missing))
+        data[is.null(data)] = replace
+        
+    if(!is.null(missing))
+        data[data == missing] = replace
+
+    data
+    }
 
 
 #' Filtering by selecting the best cells
