@@ -163,8 +163,10 @@ replace_missing = function(data, missing, replace){
         stop("ERROR: Provide exactly one character as a replacement")
     if(nchar(replace) != 1)
         stop("ERROR: Provide exactly one character as a replacement")
+    if(is.null(missing) || is.null(replace))
+        stop("ERROR: Missing and replace characters cannot be NULL")
 
-    if(is.null(missing))
+    if(is.na(missing))
         data[is.null(data)] = replace
         
     if(!is.null(missing))
