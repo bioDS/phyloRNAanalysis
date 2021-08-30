@@ -125,14 +125,16 @@ density_filenames = function(outdir, prefix, density){
 #' @param x data in tabular format
 #' @param density desired data density
 #' @param empty missing value specification
-#' @param outdir an output directory
-#' @param prefix a prefix for output files
-#' @param replace replace missing value with this character
+#' @param outdir **optional** an output directory, by defautl current working
+#' directory is used
+#' @param prefix **optional** a prefix for output files, by `filtered` is used
+#' @param replace **optional** replace missing value with this character
+#' @param rescale **optional** rescale the ordinal scale so that currently present categories form a sequence, this this might be required by some computational software. Note that this redefines the meaning behind categories.
 #' @return vector of paths for filtered datasets
 density_filtering = function(
     x, density=0.5, empty="N",
     outdir=NULL, prefix=NULL,
-    replace=NULL
+    replace=NULL, rescale=FALSE
     ){
     if(is.null(outdir))
         outdir = "."
@@ -150,6 +152,8 @@ density_filtering = function(
         if(!is.null(replace))
             filtered = replace_missing(filtered, empty, replace)
         filtered = phyloRNA::remove_constant(filtered, margin=1, unknown=empty)
+        if(rescale)
+            filtered = phyloRNA::replace.ordinal(filtered)
         write_table(filtered, outfile[i])
         }
 
