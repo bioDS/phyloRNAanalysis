@@ -153,7 +153,7 @@ density_filtering = function(
         if(!is.null(replace))
             filtered = replace_missing(filtered, empty, replace)
         if(rescale)
-            filtered = phyloRNA::replace.ordinal(filtered)
+            filtered = phyloRNA::replace.ordinal(as.matrix(filtered))
         write_table(filtered, outfile[i])
         }
 
