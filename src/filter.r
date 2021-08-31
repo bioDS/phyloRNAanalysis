@@ -149,9 +149,9 @@ density_filtering = function(
 
     for(i in seq_along(density)){
         filtered = phyloRNA::densest_subset(x, empty=empty, density=density[i])$result
+        filtered = phyloRNA::remove_constant(filtered, margin=1, unknown=empty)
         if(!is.null(replace))
             filtered = replace_missing(filtered, empty, replace)
-        filtered = phyloRNA::remove_constant(filtered, margin=1, unknown=empty)
         if(rescale)
             filtered = phyloRNA::replace.ordinal(filtered)
         write_table(filtered, outfile[i])
