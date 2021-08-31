@@ -129,7 +129,12 @@ density_filenames = function(outdir, prefix, density){
 #' directory is used
 #' @param prefix **optional** a prefix for output files, by `filtered` is used
 #' @param replace **optional** replace missing value with this character
-#' @param rescale **optional** rescale the ordinal scale so that currently present categories form a sequence, this this might be required by some computational software. Note that this redefines the meaning behind categories.
+#' @param rescale **optional** rescale the ordinal scale so that currently present
+#' categories form a sequence, this this might be required by some computational
+#' software. Note that this redefines the meaning behind categories.
+#' If `TRUE`, a numeric sequence starting from `1` is used.
+#' Alternatively, user can provide their own ordinal scale to which the object
+#' will be rescaled.
 #' @return vector of paths for filtered datasets
 density_filtering = function(
     x, density=0.5, empty="N",
@@ -152,8 +157,12 @@ density_filtering = function(
         filtered = phyloRNA::remove_constant(filtered, margin=1, unknown=empty)
         if(!is.null(replace))
             filtered = replace_missing(filtered, empty, replace)
-        if(rescale)
-            filtered = phyloRNA::replace.ordinal(as.matrix(filtered))
+        if(!phyloRNA::is_nn(rescale)){
+            if(length(rescale) == 1 && rescale) # rescale = TRUE
+                filtered = phyloRNA::replace_ordinal(filtered)
+            if(length(rescale) > 1) # e.g.: rescale = 0:10; rescale = letters
+                filtered = phyloRNA::replace_ordinal(filtered, rescale)
+            }
         write_table(filtered, outfile[i])
         }
 
