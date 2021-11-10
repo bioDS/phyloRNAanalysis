@@ -13,7 +13,7 @@ main = function(){
     fastqdir = file.path(outdir, "fastq")
     mapdir = file.path(outdir, "map")
     refdir = "reference/ref"
-    GSE = "GSE181410"
+    gse = "GSE181410"
     
     reference = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
     annotation = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
@@ -23,7 +23,7 @@ main = function(){
     cellranger_mkref(reference, annotation, refdir, nthreads=8)
 
     # get samples
-    samples = get_srr_samples(gse, save=file.path(outdir, paste0(GSE, ".rds")))
+    samples = get_srr_samples(gse, save=file.path(outdir, paste0(gse, ".rds")))
 
     # construct names from samples
     sample$names = make_sample_names(samples$names)
