@@ -1,8 +1,49 @@
 #' sra.r
 #'
-#' Function for a programatical access to a SRA and GEO databases
+#' Function to programmatically access to a SRA and GEO databases
 import::here("magrittr", "%>%")
 import::here("xml2", "read_xml", "as_list")
+
+
+
+#' Download SRR samples
+#'
+#' Download 10X fastq files from the SRA database
+#'
+#' @param srr the SRR (short-read record, presumably) id that identifies reads in the SRA database.
+#' SRR ids can be obtained by `get_srr_samples`.
+#' @param prefix a sample prefix that identifies downloaded fastq files
+#' @param outdir an output directory where the fastq files are downloaded
+srr_download_sample = function(srr, prefix, outdir){
+    # For Cellranger, file names need to have this structure:
+    # [name]_S1_L001_[read type]_001.fastq.gz
+    # S1 -- sample 1
+    # L001 -- lane 001
+    # read type:
+    #     -- I1 -- Index file
+    #     -- R1 -- barcodes or actual reads
+    #     -- R2 -- barcodes or actual reads
+    read_types = c("I1", "R1", "R2")
+
+    fastqs = file.path(
+        outdir,
+        paste0(prefix, "_S1_L001_", read_types, "_001.fastq.gz")
+        )
+
+    if(all.files.exists(fastqs))
+        return(invisible())
+
+    # Download srr files and check if they exist/were downloaded correctly
+    srr_files = file.path(outdir, paste0(srr, "_", 1:3, ".fastq.gz"))
+    sra_download(srr, outdir)
+    if(!all.files.exists(srr_files))
+        stop("ERROR: not all files exists.\\n", "Files: ", files)
+
+    file.rename(srr_files, fastqs)
+
+    return(invisible())
+    }
+
 
 sra_download = function(srr, outdir){
     # Check if the srr fastq file or files already exists
