@@ -20,7 +20,7 @@ main = function(){
 
     # required reference files:
     reference = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
-    annotation = "referencey/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
+    annotation = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
     vcf = "reference/00-common_all.vcf.gz"
 
     # create directories
