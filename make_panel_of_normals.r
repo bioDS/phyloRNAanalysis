@@ -23,13 +23,13 @@ main = function(){
     cellranger_mkref(reference, annotation, refdir, nthreads=8)
 
     # get samples
+    mkdir(outdir)
     samples = get_srr_samples(gse, save=file.path(outdir, paste0(gse, ".rds")))
 
     # construct names from samples
     sample$names = make_sample_names(samples$names)
 
     # download samples
-    mkdir(outdir)
     mkdir(fastqdir)
     Map(srr_download_sample, srr=samples$srr, prefix=sample$names, outdir=fastqdir)
 
