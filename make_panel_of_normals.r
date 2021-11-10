@@ -27,11 +27,11 @@ main = function(){
     samples = get_srr_samples(gse, save=file.path(outdir, paste0(gse, ".rds")))
 
     # construct names from samples
-    sample$names = make_sample_names(samples$names)
+    samples$names = make_sample_names(samples$names)
 
     # download samples
     mkdir(fastqdir)
-    Map(srr_download_sample, srr=samples$srr, prefix=sample$names, outdir=fastqdir)
+    Map(srr_download_sample, srr=samples$srr, prefix=samples$names, outdir=fastqdir)
 
     # map and demultiplex
     Map(cellranger_count,
@@ -40,8 +40,8 @@ main = function(){
         nthreads = 8
         ) 
 
-    aligned = file.path(mapdir, sample$names, "outs", "possorted_genome_bam.bam")
-    cleaned = file.path(mapdir, paste0(sample$names, ".cleaned.bam"))
+    aligned = file.path(mapdir, samples$names, "outs", "possorted_genome_bam.bam")
+    cleaned = file.path(mapdir, paste0(samples$names, ".cleaned.bam"))
 
     Map(gatk_prepare,
         input = aligned, output = cleaned,
