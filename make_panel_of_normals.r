@@ -4,7 +4,7 @@
 import::from("src/sra.r", "get_srr_samples", "srr_download_sample")
 import::from("phyloRNA",
     "cellranger_mkref", "cellranger_count",
-    "gatk_prepare", "gatk_make_pon"
+    "gatk_prepare", "gatk_make_pon",
     "mkdir"
     )
 
@@ -35,7 +35,7 @@ main = function(){
 
     # map and demultiplex
     Map(cellranger_count,
-        id = samples$names, sample = samples$names
+        id = samples$names, sample = samples$names,
         fastqdir = fastqdir, refdir = refdir, outdir = mapdir,
         nthreads = 8
         ) 
@@ -51,7 +51,7 @@ main = function(){
     gatk_make_pon(
         bam = cleaned,
         reference = reference,
-        vcf = file.path(outdir, paste0("pon.vcf"))
+        vcf = file.path(outdir, paste0("pon.vcf")),
         outdir = file.path(outdir, "mutect2")
         )
     }
