@@ -30,7 +30,7 @@ srr_download_sample = function(srr, prefix, outdir){
         paste0(prefix, "_S1_L001_", read_types, "_001.fastq.gz")
         )
 
-    if(all.files.exists(fastqs))
+    if(phyloRNA::all_files_exist(fastqs))
         return(invisible())
 
     # Download srr files and check if they exist/were downloaded correctly
@@ -56,12 +56,15 @@ sra_download = function(srr, outdir){
     }
 
 
-sra_prefetch = function(srr, outdir){
+sra_prefetch = function(srr, outdir, progress=TRUE){
     command = "prefetch"
     args = c(
         srr,
         "--output-directory", outdir
-        )    
+        )
+    if(progress)
+        args = c(args, "--progress")
+
     phyloRNA:::systemE(command, args)
     }
 
