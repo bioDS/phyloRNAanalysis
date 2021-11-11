@@ -1,7 +1,6 @@
-#' run_pon.r
+#' make_panel_of_normals.r
 #'
 #' Construct the GATK Panel of Normals of MDA-MB-231 cell lineage from the GSE181410 data.
-import::from("src/utils.r", "all.files.exists")
 import::from("src/sra.r", "get_srr_samples", "srr_download_sample")
 import::from("phyloRNA",
     "cellranger_mkref", "cellranger_count",
@@ -35,13 +34,13 @@ main = function(){
     Map(srr_download_sample, srr=samples$srr, prefix=samples$name, outdir=fastqdir)
 
     # map and demultiplex
-    Map(cellranger_count,
+    outputs = Map(cellranger_count,
         id = samples$name, sample = samples$name,
         fastqdir = fastqdir, refdir = refdir, outdir = mapdir,
         nthreads = 8
         ) 
 
-    aligned = file.path(mapdir, samples$name, "outs", "possorted_genome_bam.bam")
+    aligned = sapply(outputs, getElement, "bam")
     cleaned = file.path(mapdir, paste0(samples$name, ".cleaned.bam"))
 
     Map(gatk_prepare,
