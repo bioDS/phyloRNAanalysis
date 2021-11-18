@@ -34,9 +34,11 @@ main = function(){
     Map(srr_download_sample, srr=samples$srr, prefix=samples$name, outdir=fastqdir)
 
     # map and demultiplex
+    mkdir(mapdir)
     outputs = Map(cellranger_count,
         id = samples$name, sample = samples$name,
-        fastqdir = fastqdir, refdir = refdir, outdir = mapdir,
+        fastqdir = fastqdir, refdir = refdir,
+        outdir = file.path(mapdir, samples$name),
         nthreads = 8
         ) 
 
