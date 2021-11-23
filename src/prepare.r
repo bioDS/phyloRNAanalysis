@@ -39,15 +39,15 @@ prepare_samples = function(
     chemistry="auto", nthreads=16
     ){
 
-    if(phyloRNA::is_nn(outdir))
+    if(is.null(outdir))
         outdir = "prepare"
-    if(phyloRNA::is_nn(refdir))
+    if(is.null(refdir))
         refdir = file.path(outdir, "ref")
-    if(phyloRNA::is_nn(obam))
+    if(is.null(obam))
         obam = file.path(outdir, "all.bam")
-    if(phyloRNA::is_nn(obar))
+    if(is.null(obar))
         obar = file.path(outdir, "all.txt")
-    if(phyloRNA::is_nn(oh5))
+    if(is.null(oh5))
         oh5 = file.path(outdir, corename(bams), paste0(corename(bams), ".h5"))
 
     result = list(
@@ -131,22 +131,20 @@ prepare_sample = function(
     outdir=NULL, mapdir=NULL, refdir=NULL, cleandir=NULL,
     chemistry = "auto", nthreads=16
     ){
-    if(phyloRNA::is_nn(outdir))
+    if(is.null(outdir))
         outdir = "prepare"
-    if(phyloRNA::is_nn(mapdir))
+    if(is.null(mapdir))
         mapdir = file.path(outdir, "map")
-    if(phyloRNA::is_nn(refdir))
+    if(is.null(refdir))
         refdir = file.path(outdir, "ref")
-    if(phyloRNA::is_nn(cleandir))
+    if(is.null(cleandir))
         cleandir = file.path(outdir, "clean")
 
     core = phyloRNA::corename(bam)
 
-    bam_aligned = filename(outdir, core, ".aligned.bam")
     bam_cleaned = filename(outdir, core, ".cleaned.bam")
     bam_prepared = filename(outdir, core, ".prepared.bam")
 
-    barcodes_aligned = filename(outdir, core, ".aligned.txt")
     barcodes_prepared = filename(outdir, core, ".prepared.txt")
 
     h5_prepared = filename(outdir, core, ".h5")
@@ -159,10 +157,10 @@ prepare_sample = function(
         )
 
     # Skip if the final output files already exist
-    if(file.exists(result$bam) && file.exists(result$barcodes) && file.exists(result$h5))
+    if(file.exist(result$bam) && file.exist(result$barcodes) && file.exist(result$h5))
         return(result)
 
-    phyloRNA::remap(
+    mapped = phyloRNA::remap(
         input = bam,
         reference = reference,
         annotation = annotation,
@@ -170,17 +168,15 @@ prepare_sample = function(
         refdir = refdir,
         chemistry = chemistry,
         nthreads = nthreads,
-        copy_bam = bam_aligned,
-        copy_bar = barcodes_aligned,
         copy_h5 = h5_prepared
         )
 
     phyloRNA::gatk_prepare(
-        input = bam_aligned,
+        input = mapped$bam,
         output = bam_cleaned,
         reference = reference,
         vcf = vcf,
-        barcodes = barcodes_aligned,
+        barcodes = mapped$barcodes,
         outdir = cleandir
         )
 
@@ -195,9 +191,7 @@ prepare_sample = function(
         replace = replace
         )
 
-    barcodes = readLines(barcodes_aligned)
-    barcodes = sub(pattern, replace, barcodes)
-    writeLines(barcodes, barcodes_prepared)
+    file_sub(mapped$barcodes, barcodes_prepared, pattern=pattern, replace=replace)
 
     return(result)
     }
@@ -205,6 +199,13 @@ prepare_sample = function(
 
 filename = function(dir, core, ext){
     file.path(dir, paste0(core, ext))
+    }
+
+
+file_sub = function(input, output, pattern, replace, fixed=FALSE){
+    lines = readLines(input)
+    lines = sub(pattern, replace, fixed=fixed)
+    writeLines(lines, output)
     }
 
 
