@@ -7,6 +7,7 @@ import::from("phyloRNA",
     "gatk_prepare", "gatk_make_pon",
     "mkdir"
     )
+import::from("parallel", "mcMap")
 
 main = function(){
     outdir = "pon/MDA-MB-231"
