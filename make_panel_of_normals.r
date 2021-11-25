@@ -59,8 +59,8 @@ main = function(){
     }
 
 make_sample_names = function(x){
-    CancerMitotransfer = grepl("mito-mEmerald+", x)
-    MacrophageMitotransfer = grepl("mitoRFP+", x)
+    CancerMitotransfer = grepl("mito-mEmerald+", x, fixed=TRUE)
+    MacrophageMitotransfer = grepl("mitoRFP+", x, fixed=TRUE)
     rep = sub(".*(rep[1-9])", "\\1", x)
     names = paste0(
         "MDAMB231",
