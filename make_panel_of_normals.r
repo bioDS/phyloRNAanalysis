@@ -7,6 +7,7 @@ import::from("phyloRNA",
     "gatk_prepare", "gatk_make_pon",
     "mkdir"
     )
+import::from("parallel", "mcMap")
 
 main = function(){
     outdir = "pon/MDA-MB-231"
@@ -28,26 +29,31 @@ main = function(){
 
     # construct names from samples
     samples$name = make_sample_names(samples$name)
+    ncores = nrow(samples)
 
     # download samples
     mkdir(fastqdir)
-    Map(srr_download_sample, srr=samples$srr, prefix=samples$name, outdir=fastqdir)
+    mcMap(srr_download_sample, srr=samples$srr, prefix=samples$name, outdir=fastqdir,
+        mc.cores=ncores)
 
     # map and demultiplex
     mkdir(mapdir)
-    outputs = Map(cellranger_count,
+    outputs = mcMap(
+        cellranger_count,
         id = samples$name, sample = samples$name,
         fastqdir = fastqdir, refdir = refdir,
         outdir = file.path(mapdir, samples$name),
-        nthreads = 8
+        nthreads = 8,
+        mc.cores=ncores
         ) 
 
     aligned = sapply(outputs, getElement, "bam")
     cleaned = file.path(mapdir, paste0(samples$name, ".cleaned.bam"))
 
-    Map(gatk_prepare,
+    mcMap(gatk_prepare,
         input = aligned, output = cleaned,
-        reference = reference, vcf = vcf
+        reference = reference, vcf = vcf,
+        mc.cores=ncores
         )
 
     gatk_make_pon(
