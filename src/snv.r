@@ -22,16 +22,18 @@
 #' position
 detect_snv = function(
     bam, barcodes, reference,
+    normal=NULL, pon=NULL, germline=NULL
     outdir=NULL, vcfdir=NULL, vcm=NULL,
     nthreads=16
     ){
     core = phyloRNA::corename(bam)
 
-    if(phyloRNA::is_nn(outdir))
+    # Set default parameters:
+    if(is.null(outdir))
         outdir = "snv"
-    if(phyloRNA::is_nn(vcfdir))
+    if(is.null(vcfdir))
         vcfdir = file.path(outdir, "vcf")
-    if(phyloRNA::is_nn(vcm))
+    if(is.null(vcm))
         vcm = file.path(outdir, paste0(core, ".vcm"))
 
     phyloRNA::mkdir(outdir)
@@ -39,7 +41,10 @@ detect_snv = function(
 
     vcf = file.path(outdir, paste0(core, ".vcf"))
 
-    phyloRNA::gatk_snv(bam, reference, vcf, vcfdir)
+    phyloRNA::gatk_snv(
+        bam, reference, vcf,
+        normal=normal, pon=pon, germline=germline,
+        outdir=vcfdir)
     phyloRNA::vcm(bam, vcf, barcodes, output=vcm, nthreads=nthreads)
 
     invisible(vcm)
