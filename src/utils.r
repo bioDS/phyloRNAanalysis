@@ -201,3 +201,13 @@ is_empty = function(x, empty){
         return(!is.na(x))
     x != empty
     }
+
+
+#' Download file
+#'
+#' @param url an url from which file is downloaded
+#' @param file a character string where downloaded file will be saved
+download_file = function(url, file, rewrite=FALSE){
+    if(!file.exists(file) || rewrite)
+        download.file(url, file)
+    }
