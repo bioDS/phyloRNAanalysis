@@ -44,7 +44,7 @@ main = function(){
         fastqdir = fastqdir, refdir = refdir,
         outdir = file.path(mapdir, samples$name),
         nthreads = 8,
-        mc.cores=ncores
+        mc.cores = ncores
         ) 
 
     aligned = sapply(outputs, getElement, "bam")

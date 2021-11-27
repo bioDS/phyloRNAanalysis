@@ -168,7 +168,7 @@ prepare_sample = function(
         refdir = refdir,
         chemistry = chemistry,
         nthreads = nthreads,
-        copy_h5 = h5_prepared
+        copy_h5 = h5_prepared # only thing we want to copy
         )
 
     phyloRNA::gatk_prepare(
