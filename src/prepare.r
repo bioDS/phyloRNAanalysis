@@ -1,8 +1,7 @@
 #' prepare.r
 #'
 #' Function for preparation of sequences.
-library("phyloRNA")
-
+import::here("phyloRNA", "corename")
 
 
 #' Prepare multiple samples into a single bam file
@@ -157,7 +156,7 @@ prepare_sample = function(
         )
 
     # Skip if the final output files already exist
-    if(file.exist(result$bam) && file.exist(result$barcodes) && file.exist(result$h5))
+    if(file.exists(result$bam) && file.exists(result$barcodes) && file.exists(result$h5))
         return(result)
 
     mapped = phyloRNA::remap(
@@ -204,7 +203,7 @@ filename = function(dir, core, ext){
 
 file_sub = function(input, output, pattern, replace, fixed=FALSE){
     lines = readLines(input)
-    lines = sub(pattern, replace, fixed=fixed)
+    lines = sub(pattern, replace, lines, fixed=fixed)
     writeLines(lines, output)
     }
 

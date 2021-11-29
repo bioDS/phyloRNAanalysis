@@ -1,7 +1,7 @@
 #' snv.r
 #'
 #' Functions for snv identification and filtering
-import::here("src/utils.r", "filename", "num2char")
+import::here("utils.r", "filename", "num2char")
 import::here("data.table", "fread")
 import::here("phyloRNA", "all_files_exist")
 
@@ -24,7 +24,7 @@ import::here("phyloRNA", "all_files_exist")
 #' position
 detect_snv = function(
     bam, barcodes, reference,
-    normal=NULL, pon=NULL, germline=NULL
+    normal=NULL, pon=NULL, germline=NULL,
     outdir=NULL, vcfdir=NULL, vcm=NULL,
     nthreads=16
     ){

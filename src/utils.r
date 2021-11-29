@@ -207,6 +207,6 @@ download_file = function(url, file, rewrite=FALSE){
 #' Construct a filename
 #'
 #' A simple shorthand for construction a file name
-filename = function(prefix, suffix="", ext=".txt", outdir=".",){
+filename = function(prefix, suffix="", ext=".txt", outdir="."){
     file.path(outdir, paste0(prefix, suffix, ext))
     }

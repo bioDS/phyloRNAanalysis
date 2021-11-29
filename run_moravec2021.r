@@ -70,7 +70,7 @@ main = function(){
     # Preparation:
     prepared = prepare_samples(
         bam, reference, annotation, vcf,
-        chemistry = chemistry, nthreads = nthreads
+        chemistry = chemistry, nthreads = nthreads,
         outdir = file.path(outdir, "prepare"),
         refdir = refdir
         )
@@ -99,13 +99,13 @@ main = function(){
     iqtrees(
         c(snv, snv_subset_fasta),
         model = "GTR+G+ASC",
-        bootstrap = 100, parallel = TRUE, nthreads = 16
+        bootstrap = 100, parallel = TRUE, nthreads = 16,
         outdir = file.path(treedir, "ML")
         )
 
     beasts(
         snv_subset_fasta,
-        template = file.path("templates", "BDStrictGtr.xml")
+        template = file.path("templates", "BDStrictGtr.xml"),
         outdir = file.path(treedir, "BI")
         )
 
@@ -128,7 +128,7 @@ main = function(){
         prefix = "expr", densities = densities,
         ) 
     expr_subset = filter_expression(
-        expr_preprocessed$discretized, filterdir
+        expr_preprocessed$discretized, filterdir,
         prefix = "expr_subset", selection = selection,
         )
 
@@ -136,12 +136,12 @@ main = function(){
     expr_subset_fasta = table2fasta(expr_subset, outdir=fastadir)
     expr_zero = table2fasta(
         expr_subset,
-        file.path(fastadir, paste0(corename(expr_subset), "_zero.fasta"))
+        file.path(fastadir, paste0(corename(expr_subset), "_zero.fasta")),
         outdir = fastadir, zero = "-"
         )
 
     iqtrees(
-        c(expr_fasta, expr_subset_fasta, expr_zero,)
+        c(expr_fasta, expr_subset_fasta, expr_zero),
         model = "ORDERED+ASC",
         bootstrap = 100, parallel = TRUE, nthreads = 16,
         outdir = file.path(treedir, "ML")

@@ -2,7 +2,7 @@
 #'
 #' Functions for processing 10x expression data
 import::here("phyloRNA", "mkdir", "all_files_exist")
-import::here("src/utils.r", "filename", "num2char")
+import::here("utils.r", "filename", "num2char")
 
 
 #' Process 10X expression data
