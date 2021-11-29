@@ -1,3 +1,10 @@
+#' expr.r
+#'
+#' Functions for processing 10x expression data
+import::here("phyloRNA", "mkdir", "all_files_exist")
+import::here("src/utils.r", "filename", "num2char")
+
+
 #' Process 10X expression data
 #'
 #' This function will filter, scale, discretize and transform scRNAseq expression data
@@ -105,27 +112,61 @@ calculate_intervals = function(data, density=c(0.6,0.9), save=FALSE){
 #' @param density desired data density
 #' @param outdir an output directory
 #' @return a list of filtered files
-filter_expression = function(expr, selection, density=0.5, outdir=NULL){
+filter_expression = function(
+    expr, prefix, selection=NULL, density=NULL, outdir=NULL
+    ){
     if(is.null(outdir))
         outdir = "."
     mkdir(outdir)
 
-    prefix = "expr"
-    prefix_subset = "expr_subset"
-    result = list(
-        "filter" = density_filenames(outdir, prefix, density),
-        "subset" = subset_filtering_filenames(outdir, prefix_subset, density)
-        )
+    if(is.null(selection) && is.null(density))
+        stop("Either the selection or the density parameter must be specified.")
 
-    if(phyloRNA::all_files_exist(result))
-        return(invisible(result))
+    if(!is.null(selection) && is.null(density)){
+        file = filename(prefix, outdir=outdir)
+        if(file.exsts(file))
+            return(invisible(file))
 
-    data = read_table(expr)
-    filter = density_filtering(data, density=density, empty="-", outdir=outdir, prefix=prefix)
-    subset = subset_filtering(
-        data, selection=selection, density=density,
-        empty="-", outdir=outdir, prefix=prefix_subset
-        )
+        data = read_table(expr)
+        file = subset_filtering(
+            data,
+            prefix = prefix,
+            selection = selection,
+            empty = "-",
+            outdir = outdir
+            )
+        return(invisible(file))
+        }
 
-    list("filter" = filter, "subset" = subset)
+    if(!is.null(selection) && !is.null(density)){
+        files = filename(prefix, num2char(density), outdir=outdir)
+        if(all_files_exist(files))
+            return(invisible(files))
+        data = read_table(expr)
+        files = subset_filtering(
+            data,
+            prefix = prefix,
+            selection = selection,
+            density = density,
+            empty = "-",
+            outdir = outdir,
+            )
+        return(invisible(files))
+        }
+
+    if(is.null(selection)){
+        files = filename(prefix, num2char(density), outdir=outdir)
+        if(all_files_exist(files))
+            return(invisible(files))
+
+        data = read_table(files)
+        files = density_filtering(
+            data,
+            prefix = prefix,
+            density = density,
+            empty = "-",
+            outdir = outdir
+            )
+        return(invisible(files))
+        }
     }

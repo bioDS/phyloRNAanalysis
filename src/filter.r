@@ -2,7 +2,8 @@
 #'
 #' Functions for the alternative filtering approach
 library("phyloRNA")
-
+import::here("src/utils.r", "num2char")
+import::here("phyloRNA", "all_files_exist")
 
 column_density = function(x, empty, sort=TRUE){
     cs = colSums(is_empty(x, empty))
@@ -202,34 +203,33 @@ replace_missing = function(data, missing, replace){
 #' @param outdir an output directory
 #' @param prefix a prefix for output files
 #' @return vector of paths for filtered datasets
-subset_filtering = function(x, selection, density=0.5, empty="N", outdir=NULL, prefix=NULL){
+subset_filtering = function(x, selection, density=NULL, empty="N", outdir=NULL, prefix=NULL){
     if(is.null(outdir))
         outdir = "."
     if(is.null(prefix))
         prefix = "filtered"
     mkdir(outdir)
 
-    outfiles = subset_filtering_filenames(outdir, prefix, density)
 
-    if(phyloRNA::all_files_exist(outfiles))
-        return(invisible(outfiles))
+    if(is.null(density)){
+        file = filename(prefix, outdir=outdir)
+        if(file.exists(file))
+            return(invisible(file))
 
-    subset = select(x, selection, empty=empty)
-    write_table(subset, outfiles[1])
-
-    for(i in seq_along(density)){
-        filtered = densest_rows(subset, density[i], empty=empty)
-        write_table(filtered, outfiles[i+1])
+        subset = select(x, selection, empty=empty)
+        write_table(subset, file)
+        return(invisible(file))
         }
 
-    invisible(outfiles)
-    }
-
-
-subset_filtering_filenames = function(outdir, prefix, density){
-    filenames = c(
-        file.path(outdir, paste0(prefix, ".txt")),
-        density_filenames(outdir, prefix,density)
-        )
-    filenames
+    if(!is.null(density)){
+        files = filename(prefix, num2char(density), outdir=outdir)
+        if(all_files_exist(files))
+            return(invisible(files))
+        subset = select(x, selection, empty=empty)
+        Map(
+            function(d,f) write_table(densest_row(subset, d, empty=empty), f),
+            density, files
+            )
+        return(invisible(files))
+        }
     }

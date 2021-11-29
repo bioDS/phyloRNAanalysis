@@ -41,7 +41,7 @@ num2char = function(x){
 #' @param outdir **optional** an outut directory, if fasta is not specified
 #' @param margin whether rows (1) or columns (2) should be concatenated
 #' @return a vector of fasta files
-table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
+table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2, zero=NULL){
     if(!is.null(fasta) && length(fasta) != length(file))
         stop("The file and fasta vectors must have the same length!")
     if(is.null(fasta))
@@ -55,6 +55,8 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
 
     for(i in seq_along(file)){
         data = read_table(file[i])
+        if(!is.null(zero))
+            data[data == zero] = 0
         seq = phyloRNA::tab2seq(data, margin=margin)
         phyloRNA::write_fasta(seq, file=fasta[i])
         }
@@ -199,4 +201,12 @@ is_empty = function(x, empty){
 download_file = function(url, file, rewrite=FALSE){
     if(!file.exists(file) || rewrite)
         download.file(url, file)
+    }
+
+
+#' Construct a filename
+#'
+#' A simple shorthand for construction a file name
+filename = function(prefix, suffix="", ext=".txt", outdir=".",){
+    file.path(outdir, paste0(prefix, suffix, ext))
     }
