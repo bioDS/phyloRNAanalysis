@@ -149,7 +149,7 @@ density_filtering = function(
 
     outfile = density_filenames(outdir, prefix, density)
 
-    if(all.files.exists(outfile))
+    if(phyloRNA::all_files_exist(outfile))
         return(invisible(outfile))
 
     for(i in seq_along(density)){
@@ -211,7 +211,7 @@ subset_filtering = function(x, selection, density=0.5, empty="N", outdir=NULL, p
 
     outfiles = subset_filtering_filenames(outdir, prefix, density)
 
-    if(all.files.exists(outfiles))
+    if(phyloRNA::all_files_exist(outfiles))
         return(invisible(outfiles))
 
     subset = select(x, selection, empty=empty)

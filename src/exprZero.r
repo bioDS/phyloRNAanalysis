@@ -7,7 +7,7 @@ table2fastaZero = function(file, fasta=NULL, outdir=NULL, margin=2){
         fasta = file.path(outdir, basename(fasta))
     mkdir(outdir)
 
-    if(all.files.exists(fasta))
+    if(phyloRNA::all_files_exist(fasta))
         return(invisible(fasta))
 
     for(i in seq_along(file)){

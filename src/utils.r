@@ -34,17 +34,6 @@ num2char = function(x){
     }
 
 
-#' Check existence of files
-#'
-#' This function checks the existence of all files stored in a list.
-#'
-#' @param files a list of files.
-#' @return a logical value indicating if all files exists.
-all.files.exists = function(x){
-    all(file.exists(unlist(x)))
-    }
-
-
 #' Convert a tabular file into a fasta format
 #'
 #' @param file one or more files in tabular format
@@ -61,7 +50,7 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2){
         fasta = file.path(outdir, basename(fasta))
     mkdir(outdir)
 
-    if(all.files.exists(fasta))
+    if(phyloRNA::all_files_exist(fasta))
         return(invisible(fasta))
 
     for(i in seq_along(file)){

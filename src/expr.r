@@ -43,7 +43,7 @@ preprocess_expression = function(
         discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep="."))
         )
 
-    if(all.files.exists(result))
+    if(phyloRNA::all_files_exist(result))
         return(invisible(result))
 
 
@@ -117,7 +117,7 @@ filter_expression = function(expr, selection, density=0.5, outdir=NULL){
         "subset" = subset_filtering_filenames(outdir, prefix_subset, density)
         )
 
-    if(all.files.exists(result))
+    if(phyloRNA::all_files_exist(result))
         return(invisible(result))
 
     data = read_table(expr)

@@ -98,7 +98,7 @@ filter_snv = function(vcm, selection, density=0.5, outdir=NULL){
     filter = density_filenames(outdir, prefix_filter, density)
     subset = subset_filtering_filenames(outdir, prefix_subset, density)
     result = list("filter" = filter, "subset" = subset)
-    if(all.files.exists(result))
+    if(phyloRNA::all_files_exist(result))
         return(invisible(result))
 
     # using data.table due to a huge size of the dataset

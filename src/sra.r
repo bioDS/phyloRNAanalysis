@@ -37,7 +37,7 @@ srr_download_sample = function(srr, prefix, outdir){
     srr_files = file.path(outdir, paste0(srr, "_", 1:3, ".fastq.gz"))
     sra_download(srr, outdir)
     if(!phyloRNA::all_files_exist(srr_files))
-        stop("ERROR: not all files exists.\\n", "Files: ", files)
+        stop("ERROR: not all files exist.\\n", "Files: ", files)
 
     file.rename(srr_files, fastqs)
 
