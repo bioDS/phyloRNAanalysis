@@ -65,6 +65,50 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2, zero=NULL){
     }
 
 
+#' Calculate data density of matrix
+#'
+#' Calculate the data density, that is the proportion of known elements in the matrix.
+#' @param x a matrix
+#' @param empty an unknown element
+#' @return a data density of matrix
+mdensity = function(x, empty){
+    sum(is_empty(x, empty)) / prod(dim(x))
+    }
+
+
+#' Test if an element is not unknown
+#'
+#' @param x vector or matrix
+#' @param empty an unknown element
+#' @return vector or matrix 
+is_empty = function(x, empty){
+    if(is.na(empty))
+        return(!is.na(x))
+    x != empty
+    }
+
+
+#' Download file
+#'
+#' @param url an url from which file is downloaded
+#' @param file a character string where downloaded file will be saved
+download_file = function(url, file, rewrite=FALSE){
+    if(!file.exists(file) || rewrite)
+        download.file(url, file)
+    }
+
+
+#' Construct a filename
+#'
+#' A simple shorthand for construction a file name
+filename = function(prefix, suffix="", ext=".txt", outdir="."){
+    file.path(outdir, paste0(prefix, suffix, ext))
+    }
+
+
+####################################################################################################
+# Deprecated or unused
+####################################################################################################
 #' Read fasta file
 #'
 #' @param file a fasta file
@@ -168,45 +212,4 @@ fasta_intersect = function(
 
     write_fasta(xseq, xout)
     write_fasta(yseq, yout)
-    }
-
-
-#' Calculate data density of matrix
-#'
-#' Calculate the data density, that is the proportion of known elements in the matrix.
-#' @param x a matrix
-#' @param empty an unknown element
-#' @return a data density of matrix
-mdensity = function(x, empty){
-    sum(is_empty(x, empty)) / prod(dim(x))
-    }
-
-
-#' Test if an element is not unknown
-#'
-#' @param x vector or matrix
-#' @param empty an unknown element
-#' @return vector or matrix 
-is_empty = function(x, empty){
-    if(is.na(empty))
-        return(!is.na(x))
-    x != empty
-    }
-
-
-#' Download file
-#'
-#' @param url an url from which file is downloaded
-#' @param file a character string where downloaded file will be saved
-download_file = function(url, file, rewrite=FALSE){
-    if(!file.exists(file) || rewrite)
-        download.file(url, file)
-    }
-
-
-#' Construct a filename
-#'
-#' A simple shorthand for construction a file name
-filename = function(prefix, suffix="", ext=".txt", outdir="."){
-    file.path(outdir, paste0(prefix, suffix, ext))
     }
