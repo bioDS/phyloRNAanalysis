@@ -1,6 +1,9 @@
 #' utils.r
 #'
 #' shared utility functions
+import::here("phyloRNA", "remove_constant", "write_fasta", "tab2seq", "all_files_exist")
+import::here("data.table", "fread")
+
 
 #' Write a table
 #'
@@ -50,15 +53,15 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2, zero=NULL){
         fasta = file.path(outdir, basename(fasta))
     mkdir(outdir)
 
-    if(phyloRNA::all_files_exist(fasta))
+    if(all_files_exist(fasta))
         return(invisible(fasta))
 
     for(i in seq_along(file)){
         data = read_table(file[i])
         if(!is.null(zero))
             data[data == zero] = 0
-        seq = phyloRNA::tab2seq(data, margin=margin)
-        phyloRNA::write_fasta(seq, file=fasta[i])
+        seq = tab2seq(data, margin=margin)
+        write_fasta(seq, file=fasta[i])
         }
 
     invisible(fasta)
@@ -103,6 +106,100 @@ download_file = function(url, file, rewrite=FALSE){
 #' A simple shorthand for construction a file name
 filename = function(prefix, suffix="", ext=".txt", outdir="."){
     file.path(outdir, paste0(prefix, suffix, ext))
+    }
+
+
+#' Convert readgroup to a cell barcode
+#'
+#' Some single-cell detection methodology, such as the `phyloRNA::vcm()` tool, expect that every
+#' read is barcoded with a cell-specific barcode. This functions transform non-barcoded single-cell
+#' bam file into a barcoded bam file by adding the read-group (RG) to the cell barcode (CB) tag
+#' @param input a bam file with reads encoded with RG tag
+#' @param output an output bam file with read-group written into the CB tag
+rg2cb = function(input, output){
+    if(file.exists(output))
+        return(invisible())
+
+    command = "python3"
+    args = c(
+        "src/rg2cb.py",
+        input, output
+        )
+    phyloRNA:::systemE(command, args)
+    }
+
+
+#' Read the vcm file and memoise it
+#'
+#' This function is memoised (possible reuse) of the vcm file.
+#' `data.table::fread()` is used here due to a huge file size.
+#' @param vcm a variant call matrix file
+#' @return a variant call matrix as a data.table
+read_vcm = local({
+    memory = list()
+
+    function(vcm){
+        if(!is.null(memory[vcm]))
+            return(memory[vcm])
+
+        # using data.tale due to a huge size of the dataset
+        data = fread(vcm, header=TRUE)
+        # first three columns are not cells (chromosome, position and reference)
+        data = data[, -c(1:3)]
+        memory[vcm] <<- data
+
+        data
+        }
+    })
+
+
+#' Convert vcm file to fasta file
+#'
+#' Convert a vcm fle to fasta file.
+#'
+#' @param vcm a variant call matrix file
+#' @param fasta a fasta file
+#' @param selection selected cell barcodes that will be retained
+vcm2fasta = function(vcm, fasta, selection=NULL){
+    if(file.exists(fasta))
+        return(invisible())
+
+    data = read_vcm(vcm)
+
+    if(!is.null(selection)){
+        match = selection %in% colnames(data)
+        if(!all(match)){
+            warning("WARNING: ", sum(!match), " out of ", length(match),
+                " requested cells are not present:\n",
+                paste0(selection[!match], collapse="\n")
+                )
+            selection = selection[match]
+            }
+        data = data[, ..selection] # data.table' subsetting
+        }
+
+    data = as.matrix(data)
+    data = remove_constant(data)
+    seq = tab2seq(data, 2)
+    write_fasta(seq, fasta)
+    }
+
+
+#' Substitute a pattern in a file
+#'
+#' Substitute a pattern over all lines in a file.
+#'
+#' This is a simple combination of the `sub` replacement function with `readLines` and `writeLines`.
+#'
+#' @param input an input file
+#' @parma output an output file where pattern will be replaced
+#' @param pattern a pattern to be replaced
+#' @param replace a replacement for pattern
+#' @param fixed pattern is a simple character string, not a regular expression
+file_sub = function(input, output, pattern, replace, fixed=FALSE){
+    lines = readLines(input)
+    lines = sub(pattern, replace, lines, fixed=fixed)
+    writeLines(lines, output)
     }
 
 
