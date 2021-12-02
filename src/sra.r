@@ -14,7 +14,8 @@ import::here("xml2", "read_xml", "as_list")
 #' SRR ids can be obtained by `get_srr_samples`.
 #' @param prefix a sample prefix that identifies downloaded fastq files
 #' @param outdir an output directory where the fastq files are downloaded
-srr_download_sample = function(srr, prefix, outdir){
+#' @param cellranger **optional** the files are renamed to the cellranger type
+srr_download_sample = function(srr, prefix, outdir=NULL, cellranger=TRUE){
     # For Cellranger, file names need to have this structure:
     # [name]_S1_L001_[read type]_001.fastq.gz
     # S1 -- sample 1
@@ -23,20 +24,29 @@ srr_download_sample = function(srr, prefix, outdir){
     #     -- I1 -- Index file
     #     -- R1 -- barcodes or actual reads
     #     -- R2 -- barcodes or actual reads
-    read_types = c("I1", "R1", "R2")
+    if(is.null(outdir))
+        outdir = "."
+    mkdir(outdir)
 
-    fastqs = file.path(
-        outdir,
-        paste0(prefix, "_S1_L001_", read_types, "_001.fastq.gz")
-        )
+    if(length(prefix) != 1 || length(srr) != 1 || length(outdir) != 1)
+        stop("This function is not vectorized. Provide a single srr, prefix and outdir.")
 
-    if(phyloRNA::all_files_exist(fastqs))
+    if(cellranger)
+        read_types = c("I1", "R1", "R2")
+        fastqs = paste0(prefix, "_S1_L001_", read_types , "_001.fastq.gz")
+        } else {
+        fastqs = paste0(prefix, ".fastq.gz")
+        }
+
+    fastqs = file.path(outdir, fastqs)
+    srr_files = file.path(outdir, paste0(srr, "_", seq_along(fastqs), ".fastq.gz"))
+
+    if(all_files_exist(fastqs))
         return(invisible())
 
     # Download srr files and check if they exist/were downloaded correctly
-    srr_files = file.path(outdir, paste0(srr, "_", 1:3, ".fastq.gz"))
     sra_download(srr, outdir)
-    if(!phyloRNA::all_files_exist(srr_files))
+    if(!all_files_exist(srr_files))
         stop("ERROR: not all files exist.\\n", "Files: ", files)
 
     file.rename(srr_files, fastqs)
