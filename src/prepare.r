@@ -1,6 +1,7 @@
 #' prepare.r
 #'
 #' Function for preparation of sequences.
+import::here("utils.r", "file_sub")
 import::here("phyloRNA", "corename")
 
 
@@ -198,13 +199,6 @@ prepare_sample = function(
 
 filename = function(dir, core, ext){
     file.path(dir, paste0(core, ext))
-    }
-
-
-file_sub = function(input, output, pattern, replace, fixed=FALSE){
-    lines = readLines(input)
-    lines = sub(pattern, replace, lines, fixed=fixed)
-    writeLines(lines, output)
     }
 
 
