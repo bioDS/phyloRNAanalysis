@@ -1,8 +1,13 @@
 #' expr.r
 #'
 #' Functions for processing 10x expression data
-import::here("phyloRNA", "mkdir", "all_files_exist")
 import::here("utils.r", "filename", "num2char")
+import::here("phyloRNA",
+    "mkdir", "all_files_exist", "corename",
+    "expr_merge", "expr_read10xh5",
+    "expr_quality_filter", "expr_zero_to_na",
+    "expr_normalize", "expr_scale", "expr_discretize"
+    )
 
 
 #' Process 10X expression data
@@ -43,38 +48,69 @@ preprocess_expression = function(
         outdir = "."
     if(is.null(prefix))
         prefix = "data"
-    phyloRNA::mkdir(outdir)
+    mkdir(outdir)
 
     result = list(
         intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
         discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep="."))
         )
 
-    if(phyloRNA::all_files_exist(result))
+    if(all_files_exist(result))
         return(invisible(result))
 
-
     if(length(h5) > 1){
-        names = phyloRNA::corename(h5)
-        data = lapply(h5, phyloRNA::expr_read10xh5)
-        data = phyloRNA::expr_merge(data, names)
+        names = corename(h5)
+        data = lapply(h5, expr_read10xh5)
+        data = expr_merge(data, names)
         } else {
-        data = phyloRNA::expr_read10xh5(h5)
+        data = expr_read10xh5(h5)
         }
 
+    data = process_expression(
+        data, hdi = hdi,
+        minGene = minGene, minUMI = minUMI,
+        trim = FALSE, normalize = normalize,
+        intervals = result$intervals
+        )
 
-    if(minGene > 0 && minUMI > 0)
-        data = phyloRNA::expr_quality_filter(data, minGene=minGene, minUMI=minUMI)
-    data = phyloRNA::expr_zero_to_na(data)
-    if(normalize)
-        data = phyloRNA::expr_normalize(data)
-    data = phyloRNA::expr_scale(data)
-
-    intervals = calculate_intervals(data, density=hdi, save=result$intervals)
-    discretized = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
-    write_table(discretized, result$discretized)
+    write_table(data, result$discretized)
 
     return(invisible(result))
+    }
+
+
+#' Process expression data
+#'
+#' This function simplifies standard expression data processing, such as quality filtering, scaling,
+#' normalization and discretization.
+#'
+#' @param data an expression matrix
+#' @param hdi **optional** a highest density intervals for discretization
+#' @param minGene **optional** a minimum amount of represented genes per cell
+#' @param minUMI **optional** a minimum amount of total UMI (or count) per cell
+#' @param trim **optional** trim empty genes after filtering
+#' @param normalize **optional** perform normalization after rescaling
+#' @param intervals **optional** a file path to save discretization intervals into file
+#' @param unknown **optional** a symbol representing unknown data
+#' @return scaled, filtered and discretized count matrix
+process_expression = function(
+    data, hdi = c(0.6, 0.9),
+    minGene = 0, minUMI = 0,
+    trim = FALSE, normalize = FALSE
+    intervals = FALSE, unknown = "-"
+    ){
+    if(minGene > 0 || minUMI > 0 || trim)
+        data = expr_quality_filter(data, minGene, minUMI, trim)
+
+    data = expr_zero_to_na(data)
+
+    if(normalize)
+        data = expr_normalize(data)
+
+    data = expr_scale(data)
+    intervals = calculate_intervals(data, density=hdi, save=intervals)
+    data = expr_discretize(data, intervals=intervals, unknown=unknown)
+    data
     }
 
 
