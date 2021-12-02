@@ -1,7 +1,7 @@
 #' snv.r
 #'
 #' Functions for snv identification and filtering
-import::here("utils.r", "filename", "num2char")
+import::here("utils.r", "filename", "num2char", "read_vcm")
 import::here("data.table", "fread")
 import::here("phyloRNA", "all_files_exist")
 
@@ -141,27 +141,3 @@ filter_snv = function(vcm, prefix, selection=NULL, density=NULL, outdir=NULL){
         return(invisible(files))
         }
     }
-
-
-#' Read the vcm file and memoise it
-#'
-#' This function is memoised (possible reuse) of the vcm file.
-#' `data.table::fread()` is used here due to a huge file size.
-#' @param vcm a variant call matrix file
-#' @return a variant call matrix as a data.table
-read_vcm = local({
-    memory = list()
-    
-    function(vcm){
-        if(!is.null(memory[vcm]))
-            return(memory[vcm])
-
-        # using data.tale due to a huge size of the dataset
-        data = fread(vcm, header=TRUE)
-        # first three columns are not cells (chromosome, position and reference)
-        data = data[, -c(1:3)]
-        memory[vcm] <<- data
-
-        data
-        }
-    })
