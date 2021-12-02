@@ -1,6 +1,8 @@
 #' iqtree.r
 #'
 #' Functions for phylogenetic reconstruction with iqtree
+import::here("parallel", "mcMap", "mclapply")
+import::here("phyloRNA", "corename", "mkdir")
 
 
 #' Run IQtree analysis
@@ -20,7 +22,7 @@ iqtree = function(
     ){
     if(is.null(outdir))
         outdir = "."
-    phyloRNA::mkdir(outdir)
+    mkdir(outdir)
 
     cfasta = file.path(outdir, basename(fasta))
 
@@ -123,8 +125,8 @@ iqtree_par = function(
         outdir = "."
 
     bootdir = file.path(outdir, "bootstrap")
-    phyloRNA::mkdir(outdir)
-    phyloRNA::mkdir(bootdir)
+    mkdir(outdir)
+    mkdir(bootdir)
 
     core = phyloRNA:::corename(fasta)
     cfasta = file.path(outdir, basename(fasta))
@@ -137,7 +139,7 @@ iqtree_par = function(
     tree = iqtree(fasta, model, outdir)
 
     # perform parallelized bootstrap
-    trees = parallel::mclapply(
+    trees = mclapply(
         seq_len(bootstrap),
         iqboot,
         model = model, fasta = cbfasta, remake = remake,
@@ -203,11 +205,11 @@ iqtrees = function(
     model = NULL, outdir = NULL,
     ufboot = FALSE, bootstrap = FALSE,
     nthreads = "AUTO", parallel = FALSE,
-    remake = FALSE
+    remake = FALSE, mc.cores=1
     ){
     if(is.null(outdir))
         outdir = "."
-    phyloRNA::mkdir(outdir)
+    mkdir(outdir)
 
     n = length(fasta)
 
@@ -215,8 +217,12 @@ iqtrees = function(
         model = rep(list(model), n)
 
     if(length(outdir) == 1)
-        outdir = file.path(outdir, phyloRNA:::corename(fasta))
+        outdir = file.path(outdir, corename(fasta))
 
-    trees = Map(f=iqtree, fasta, model, outdir, ufboot, bootstrap, nthreads, parallel, remake)
+    trees = mcMap(
+        f=iqtree, fasta, model, outdir, ufboot, bootstrap, nthreads, parallel, remake,
+        mc.cores=mc.cores
+        )
+
     invisible(trees)
     }
