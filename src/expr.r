@@ -96,7 +96,7 @@ preprocess_expression = function(
 process_expression = function(
     data, hdi = c(0.6, 0.9),
     minGene = 0, minUMI = 0,
-    trim = FALSE, normalize = FALSE
+    trim = FALSE, normalize = FALSE,
     intervals = FALSE, unknown = "-"
     ){
     if(minGene > 0 || minUMI > 0 || trim)

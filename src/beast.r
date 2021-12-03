@@ -71,7 +71,7 @@ beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, param=lis
         beast,
         fasta = fasta,
         template = template,
-        outdir = file.path(outdir, corename(fasta))
+        outdir = file.path(outdir, corename(fasta)),
         nthreads = nthreads,
         burnin = burnin,
         param = param,

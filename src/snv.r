@@ -2,7 +2,7 @@
 #'
 #' Functions for snv identification and filtering
 import::here("utils.r", "filename", "num2char", "read_vcm")
-import::here("data.table", "fread")
+import::here("filter.r", "density_filtering", "subset_filtering")
 import::here("phyloRNA", "all_files_exist")
 
 #' Detect SNV for scRNAseq
@@ -134,9 +134,9 @@ filter_snv = function(vcm, prefix, selection=NULL, density=NULL, outdir=NULL){
     if(is.null(selection)){
         files = filename(prefix, num2char(density), outdir=outdir)
         if(all_files_exist(files))
-            return(invisible(file))
+            return(invisible(files))
 
-        data = read_vcm(vcm)
+        data = as.data.frame(read_vcm(vcm))
         files = density_filtering(data, prefix=prefix, density=density, empty="N", outdir=outdir)
         return(invisible(files))
         }

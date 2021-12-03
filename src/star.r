@@ -1,7 +1,7 @@
 #' star.r
 #'
 #' mapping to the STAR RNA-seq mapping software
-import::here("rg2cb.r", "rg2cb")
+import::here("utils.r", "rg2cb")
 import::here("phyloRNA", "corename", "mkdir")
 
 
@@ -27,7 +27,7 @@ import::here("phyloRNA", "corename", "mkdir")
 #' @param nthreads **optional** the number of threads to run the analysis on
 #' @return a mapped bam file with CB tag
 STAR = function(
-    prefix, fastqs, sample, flowcell
+    prefix, fastqs, sample, flowcell,
     reference, annotation, overhang,
     outdir = NULL, refdir = NULL, mapdir = NULL,
     manifest = NULL, gzip = TRUE,
@@ -189,7 +189,7 @@ make_read_group = function(sample, flowcell, platform="ILLUMINA"){
 STAR_genome_index = function(reference, gtf, overhang=50, outdir=NULL, nthreads=16){
     if(is.null(outdir))
         outdir = "."
-    mkdir(otudir)
+    mkdir(outdir)
 
     statusfile = file.path(outdir, "genome.finished")
     if(file.exists(statusfile))

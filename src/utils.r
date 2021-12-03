@@ -1,7 +1,10 @@
 #' utils.r
 #'
 #' shared utility functions
-import::here("phyloRNA", "remove_constant", "write_fasta", "tab2seq", "all_files_exist")
+import::here("phyloRNA",
+    "remove_constant", "write_fasta", "tab2seq",
+    "all_files_exist", "mkdir"
+    )
 import::here("data.table", "fread")
 
 
@@ -139,14 +142,14 @@ read_vcm = local({
     memory = list()
 
     function(vcm){
-        if(!is.null(memory[vcm]))
-            return(memory[vcm])
+        if(!is.null(memory[[vcm]]))
+            return(memory[[vcm]])
 
         # using data.tale due to a huge size of the dataset
         data = fread(vcm, header=TRUE)
         # first three columns are not cells (chromosome, position and reference)
         data = data[, -c(1:3)]
-        memory[vcm] <<- data
+        memory[[vcm]] <<- data
 
         data
         }

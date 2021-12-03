@@ -31,7 +31,7 @@ srr_download_sample = function(srr, prefix, outdir=NULL, cellranger=TRUE){
     if(length(prefix) != 1 || length(srr) != 1 || length(outdir) != 1)
         stop("This function is not vectorized. Provide a single srr, prefix and outdir.")
 
-    if(cellranger)
+    if(cellranger){
         read_types = c("I1", "R1", "R2")
         fastqs = paste0(prefix, "_S1_L001_", read_types , "_001.fastq.gz")
         } else {

@@ -40,11 +40,11 @@ snv = function(){
     samples = get_srr_samples(gse, save=file.path(outdir, "samples.rds"))
     ncores = max(nrow(samples), 16)
     mcMap(srr_download_sample, samples$srr, samples$name, fastqdir, cellranger=FALSE, mc.cores=ncores)
-    fastqs = file.path(fastqdir, paste0(samples$name, ".fastqs.gz"))
+    fastqs = file.path(fastqdir, paste0(samples$name, ".fastq.gz"))
     fastqs = sapply(fastqs, abspath)
 
     # Map with STAR
-    mapped = STAR(prefix, fastqs, samples$name, gse, reference, annotation, overhang=50,
+    mapped = STAR("all", fastqs, samples$name, gse, reference, annotation, overhang=50,
          outdir=outdir, refdir=refdir, mapdir=mapdir)
 
     # Prepare with GATK
@@ -78,7 +78,7 @@ expr = function(){
     fastadir = file.path(outdir, "fasta")
     treedir = file.path(outdir, "tree")
 
-    url = paste0("https://www.ncbi.nlm.nih.gov/geo/download/"
+    url = paste0("https://www.ncbi.nlm.nih.gov/geo/download/",
                  "?acc=GSE158631&format=file&file=GSE158631%5Fcount%2Ecsv%2Egz")
     file = file.path(outdir, "count_matrix.csv.gz")
     download_file(url, file)
@@ -106,7 +106,7 @@ exp2fasta = function(x, fasta, unknown="-", summary=FALSE){
 
     if(isTRUE(summary))
         summary = file.path(basename(fasta), paste0(corename(fasta), "_summary.txt"))
-    if(is.character(summary)
+    if(is.character(summary))
         count_matrix_summary(data, name=corename(fasta), file=summary)
     }
 
@@ -120,7 +120,7 @@ count_matrix_summary = function(data, name=NULL, file=NULL){
         )
 
     if(!is.null(name))
-        text = paste0("Name: ", name[1], "\n", text),
+        text = paste0("Name: ", name[1], "\n", text)
 
     if(!is.null(file))
         writeLines(text, file)

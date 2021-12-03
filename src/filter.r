@@ -1,9 +1,12 @@
 #' filter.r
 #'
 #' Functions for the alternative filtering approach
-library("phyloRNA")
-import::here("src/utils.r", "num2char")
-import::here("phyloRNA", "all_files_exist")
+import::here("phyloRNA", "remove_constant", "replace_ordinal", "densest_subset")
+import::here("utils.r", "is_empty", "num2char", "write_table")
+import::here("phyloRNA",
+    "all_files_exist", "mkdir",
+    "remove_constant", "replace_ordinal", "densest_subset"
+    )
 
 column_density = function(x, empty, sort=TRUE){
     cs = colSums(is_empty(x, empty))
@@ -54,7 +57,7 @@ select_from_list = function(x, selection){
 subset_rows = function(x, k, empty){
     rs = rowSums( is_empty(x, empty) )
     y = x[rs > k, ]
-    y = phyloRNA::remove_constant(y, margin=1, empty)
+    y = remove_constant(y, margin=1, empty)
     y
     }
 
@@ -75,6 +78,8 @@ subset_rows = function(x, k, empty){
 select = function(x, selection, pattern=".*-", replace="", empty=NA){
     # These operation work with sorted names
     # rather than whole input data
+    print(x)
+    print(selection)
     columns = names(column_density(x, empty, sort=TRUE))
     columns = divide_vector(columns, pattern, replace)
     columns = select_from_list(columns, selection)
@@ -150,19 +155,19 @@ density_filtering = function(
 
     outfile = density_filenames(outdir, prefix, density)
 
-    if(phyloRNA::all_files_exist(outfile))
+    if(all_files_exist(outfile))
         return(invisible(outfile))
 
     for(i in seq_along(density)){
-        filtered = phyloRNA::densest_subset(x, empty=empty, density=density[i])$result
-        filtered = phyloRNA::remove_constant(filtered, margin=1, unknown=empty)
+        filtered = densest_subset(x, empty=empty, density=density[i])$result
+        filtered = remove_constant(filtered, margin=1, unknown=empty)
         if(!is.null(replace))
             filtered = replace_missing(filtered, empty, replace)
-        if(!phyloRNA::is_nn(rescale)){
+        if(!is.null(rescale)){
             if(length(rescale) == 1 && rescale) # rescale = TRUE
-                filtered = phyloRNA::replace_ordinal(filtered)
+                filtered = replace_ordinal(filtered)
             if(length(rescale) > 1) # e.g.: rescale = 0:10; rescale = letters
-                filtered = phyloRNA::replace_ordinal(filtered, rescale)
+                filtered = replace_ordinal(filtered, rescale)
             }
         write_table(filtered, outfile[i])
         }
