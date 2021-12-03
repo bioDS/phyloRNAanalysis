@@ -34,7 +34,7 @@ snv = function(){
     annotation = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
     vcf = "reference/00-common_all.vcf.gz"
     pon = "pon/1000g_pon.hg38.vcf.gz"
-    germline = "af-only-gnomad.hg38.vcf.gz"
+    germline = "pon/af-only-gnomad.hg38.vcf.gz"
 
     # Download fastqs
     samples = get_srr_samples(gse, save=file.path(outdir, "samples.rds"))
