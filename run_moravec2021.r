@@ -97,8 +97,8 @@ main = function(){
     snv_subset_fasta = table2fasta(snv, outdir=fastadir)
 
     iqtrees(
-        c(snv, snv_subset_fasta),
-        model = "GTR+G+ASC",
+        c(snv_fasta, snv_subset_fasta),
+        model = "TEST",
         bootstrap = 100, parallel = TRUE, nthreads = 16,
         outdir = file.path(treedir, "ML")
         )
