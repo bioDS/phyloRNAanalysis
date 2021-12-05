@@ -2,8 +2,10 @@
 #'
 #' shared utility functions
 import::here("phyloRNA",
-    "remove_constant", "write_fasta", "tab2seq",
-    "all_files_exist", "mkdir"
+    "remove_constant",
+    "write_fasta", "read_fasta",
+    "tab2seq", "seq2tab",
+    "all_files_exist", "mkdir", "corename"
     )
 import::here("data.table", "fread")
 
@@ -70,6 +72,39 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2, zero=NULL){
     invisible(fasta)
     }
 
+
+fasta2stats = function(fasta, stats=NULL, name=FALSE, unknown="N"){
+    if(is.null(stats))
+        stats = paste0(tools::file_path_sans_ext(fasta), ".txt")
+    if(length(fasta) != length(stats))
+        stop("fasta and stats vector must have the same length")
+    if(file.exists(fasta))
+        return(invisible())
+
+    if(isTRUE(name))
+        name = corename(fasta)
+
+    n = length(fasta)
+    name = rep_len(name, n)
+    unknown = rep_len(unknown, n)
+
+    for(i in seq_along(fasta)){
+        seq = read_fasta(fasta[i])
+        tab = seq2tab(seq)
+
+        text = paste0(
+            "Sequences: ", nrow(tab), "\n",
+            "Sites: ", ncol(tab), "\n",
+            "Unique patterns: ", ncol(unique.matrix(tab, MARGIN=2)), "\n",
+            "Data density: ", mdensity(tab, empty=unknown[i])
+            )
+
+        if(is.character(name))
+            text = paste0("Name: ", name[i], "\n", text)
+
+        writeLines(text, stats[i])
+        }
+    }
 
 #' Calculate data density of matrix
 #'
