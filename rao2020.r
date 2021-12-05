@@ -65,10 +65,10 @@ expr = function(){
     data = c("pr" = primary_dir, "met" = metastasis_dir)
  
     if(!file.exists(all_fasta))
-        prepare_fasta(data, all_fasta, all_cells, hdi=hdi)
+        prepare_fasta(data, all_fasta, all_cells, n=500, hdi=hdi)
 
     if(!file.exists(cancer_fasta))
-        prepare_fasta(data, cancer_fasta, cancer_cells, hdi=hdi)
+        prepare_fasta(data, cancer_fasta, cancer_cells, n=500, hdi=hdi)
 
     iqtrees(
         c(all_fasta, cancer_fasta),
@@ -289,7 +289,7 @@ select_pattern = function(x, pattern, n=NULL){
     }
 
 
-prepare_fasta = function(x, fasta, selection, hdi=c(0.6, 0.9), suffix=NULL){
+prepare_fasta = function(x, fasta, selection, n, hdi=c(0.6, 0.9), suffix=NULL){
     if(is.null(suffix))
         suffix = names(x)
     if(is.null(suffix))
