@@ -10,7 +10,7 @@ import::from("src/expr.r", "expr2fasta")
 import::from("src/iqtree.r", "iqtrees")
 import::from("src/beast.r", "beasts")
 import::from("src/utils.r", "vcm2fasta", "fasta2stats")
-import::from("phyloRNA", "gatk_prepare", "abspath")
+import::from("phyloRNA", "gatk_prepare", "abspath", "mkdir")
 import::from("parallel", "mcMap")
 
 main = function(){
@@ -60,7 +60,9 @@ snv = function(){
 
     gc = lapply(names, grep, x=samples$name, value=TRUE)
     fasta = file.path(fastadir, paste0(names, ".fasta"))
-    mcMap(vcm2fasta, vcm, fasta, gc, mc.cores=n)    
+
+    mkdir(fastadir)
+    mcMap(vcm2fasta, vcm, fasta, gc, mc.cores=n) 
     fasta2stats(fasta, unknown="N")
 
     # run IQtree
