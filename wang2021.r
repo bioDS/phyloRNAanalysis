@@ -9,7 +9,7 @@ import::from("src/snv.r", "detect_snv")
 import::from("src/expr.r", "expr2fasta")
 import::from("src/iqtree.r", "iqtrees")
 import::from("src/beast.r", "beasts")
-import::from("src/utils.r", "vcm2fasta", "fasta2stats")
+import::from("src/utils.r", "vcm2fasta", "fasta2stats", "download_file")
 import::from("phyloRNA", "gatk_prepare", "abspath", "mkdir")
 import::from("parallel", "mcMap")
 
@@ -80,18 +80,22 @@ expr = function(){
     fastadir = file.path(outdir, "fasta")
     treedir = file.path(outdir, "tree")
 
+    mkdir(outdir)
+    mkdir(fastadir)
+    mkdir(treedir)
+
     url = paste0("https://www.ncbi.nlm.nih.gov/geo/download/",
                  "?acc=GSE158631&format=file&file=GSE158631%5Fcount%2Ecsv%2Egz")
     file = file.path(outdir, "count_matrix.csv.gz")
     download_file(url, file)
 
     # Read the data and split it according to patient
-    count_matrix = read.table(infile, sep=",", header=TRUE, row.names=1)
+    count_matrix = read.table(file, sep=",", header=TRUE, row.names=1)
     count_matrix = split.default(count_matrix, sub("\\..*", "", names(count_matrix)))
     n = length(count_matrix)
 
     fasta = file.path(fastadir, paste0(names(count_matrix), ".fasta"))
-    Map(expr2fasta, count_matrix, fasta, summary=TRUE)
+    Map(expr2fasta, count_matrix, fasta, summary=TRUE, hdi=list(hdi))
 
     # Run phylogenetic analyses
     iqtrees(fasta, "ORDERED+ASC", outdir=file.path(treedir, "ML"), mc.cores=n)
