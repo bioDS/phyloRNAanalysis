@@ -73,12 +73,12 @@ table2fasta = function(file, fasta=NULL, outdir=NULL, margin=2, zero=NULL){
     }
 
 
-fasta2stats = function(fasta, stats=NULL, name=FALSE, unknown="N"){
+fasta2stats = function(fasta, stats=NULL, name=TRUE, unknown="N"){
     if(is.null(stats))
         stats = paste0(tools::file_path_sans_ext(fasta), ".txt")
     if(length(fasta) != length(stats))
         stop("fasta and stats vector must have the same length")
-    if(all_files_exist(fasta))
+    if(all_files_exist(stats))
         return(invisible())
 
     if(isTRUE(name))
