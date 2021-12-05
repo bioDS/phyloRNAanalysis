@@ -71,7 +71,7 @@ beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=NU
     mkdir(outdir)
 
     if(is.null(params))
-        rep(list(), length(fasta))
+        params = list(list())
 
     mcMap(
         beast,
