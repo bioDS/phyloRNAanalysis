@@ -206,6 +206,21 @@ file_sub = function(input, output, pattern, replace, fixed=FALSE){
     }
 
 
+#' Merge files
+#'
+#' Merge multiple files into a single file.
+#'
+#' @param inputs one or multiple files to merge
+#' @param a merged file
+#' @param overwrite **optional** if an existing output should be overwritten
+merge_files = function(inputs, output, overwrite=FALSE){
+    if(file.exists(output) && overwrite)
+        file.remove(output)
+    if(!file.exists(output))
+        file.append(output, inputs)
+    }
+
+
 ####################################################################################################
 # Deprecated or unused
 ####################################################################################################

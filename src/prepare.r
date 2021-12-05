@@ -1,7 +1,7 @@
 #' prepare.r
 #'
 #' Function for preparation of sequences.
-import::here("utils.r", "file_sub")
+import::here("utils.r", "file_sub", "merge_files")
 import::here("phyloRNA", "corename")
 
 
@@ -199,12 +199,6 @@ prepare_sample = function(
 
 filename = function(dir, core, ext){
     file.path(dir, paste0(core, ext))
-    }
-
-
-merge_files = function(inputs, output, overwrite=FALSE){
-    if(file.exists(output) && overwrite) file.remove(output)
-    file.append(output, inputs)
     }
 
 
