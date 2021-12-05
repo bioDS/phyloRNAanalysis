@@ -1,7 +1,7 @@
 #' expr.r
 #'
 #' Functions for processing 10x expression data
-import::here("utils.r", "filename", "num2char")
+import::here("utils.r", "filename", "num2char", "mdensity")
 import::here("phyloRNA",
     "mkdir", "all_files_exist", "corename",
     "expr_merge", "expr_read10xh5",
@@ -115,7 +115,7 @@ process_expression = function(
     }
 
 
-expr2fasta = function(x, fasta, unknown="-", summary=FALSE, process=TRUE){
+expr2fasta = function(x, fasta, unknown="-", summary=FALSE, process=TRUE, hdi=c(0.6, 0.9)){
     data = x
     if(process)
         data = process_expression(x, hdi, trim=TRUE, unknown=unknown)
@@ -126,7 +126,7 @@ expr2fasta = function(x, fasta, unknown="-", summary=FALSE, process=TRUE){
     write_fasta(seq, fasta)
 
     if(isTRUE(summary))
-        summary = file.path(basename(fasta), paste0(corename(fasta), "_summary.txt"))
+        summary = file.path(dirname(fasta), paste0(corename(fasta), "_summary.txt"))
     if(is.character(summary))
         count_matrix_summary(data, name=corename(fasta), file=summary)
     }
