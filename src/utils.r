@@ -78,7 +78,7 @@ fasta2stats = function(fasta, stats=NULL, name=FALSE, unknown="N"){
         stats = paste0(tools::file_path_sans_ext(fasta), ".txt")
     if(length(fasta) != length(stats))
         stop("fasta and stats vector must have the same length")
-    if(file.exists(fasta))
+    if(all_files_exist(fasta))
         return(invisible())
 
     if(isTRUE(name))
