@@ -301,7 +301,7 @@ prepare_fasta = function(x, fasta, selection, hdi=c(0.6, 0.9), suffix=NULL){
     
     data = process_expression(data, hdi, trim=TRUE)
 
-    best = colSums(combined != "-")
+    best = colSums(data != "-")
     best = sort(best, decreasing=TRUE)
     best = names(best)
 
@@ -309,7 +309,7 @@ prepare_fasta = function(x, fasta, selection, hdi=c(0.6, 0.9), suffix=NULL){
     best = unlist(best)
 
     data = data[, best]
-    expr2fasta(combined, fasta, summary=TRUE, process=FALSE)
+    expr2fasta(data, fasta, summary=TRUE, process=FALSE)
     }
 
 
