@@ -13,10 +13,13 @@ import::here("beter", "process_template")
 #' @param nthreads a number of threads to run the BEAST on
 #' @param burnin burnin percentages
 #' @param params an additional list of parameters
-beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=list()){
+beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=NULL){
     if(is.null(outdir))
         outdir = "."
     mkdir(outdir)
+
+    if(is.null(params))
+        params = list()
 
     prefix = corename(fasta)
 
@@ -62,7 +65,7 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
     }
 
 
-beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, param=list(), mc.cores=1){
+beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=NULL, mc.cores=1){
     if(is.null(outdir))
         outdir = "."
     mkdir(outdir)
@@ -74,7 +77,7 @@ beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, param=lis
         outdir = file.path(outdir, corename(fasta)),
         nthreads = nthreads,
         burnin = burnin,
-        param = param,
+        params = params,
         mc.cores = mc.cores
         )
     }
