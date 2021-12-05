@@ -36,7 +36,7 @@
 # use import::from instead?
 import::from("src/prepare.r", "prepare_samples")
 import::from("src/snv.r", "detect_snv", "filter_snv")
-import::from("src/utils.r", "table2fasta")
+import::from("src/utils.r", "table2fasta", "fasta2stats")
 import::from("src/expr.r", "preprocess_expression", "filter_expression")
 import::from("src/beast.r", "beasts")
 import::from("src/iqtree.r", "iqtrees")
@@ -91,10 +91,12 @@ main = function(){
 
     snv = filter_snv(vcm=vcm, density=densities, prefix="snv", outdir=tabdir)
     snv_fasta = table2fasta(snv, outdir=fastadir)
+    fasta2stats(snv_fasta, unknown="N")
 
     snv_subset = filter_snv(vcm=vcm, selection=selection, prefix="snv_subset",
                             outdir=tabdir)
     snv_subset_fasta = table2fasta(snv, outdir=fastadir)
+    fasta2stats(snv_subset_fasta, unknown="N")
 
     iqtrees(
         c(snv_fasta, snv_subset_fasta),
@@ -133,15 +135,18 @@ main = function(){
         )
 
     expr_fasta = table2fasta(expr, outdir=fastadir)
+    fasta2stats(expr_fasta, unknown="-")
+
     expr_subset_fasta = table2fasta(expr_subset, outdir=fastadir)
-    expr_zero = table2fasta(
+    fasta2stats(expr_subset_fasta, unknown="-")
+    expr_zero_fasta = table2fasta(
         expr_subset,
         file.path(fastadir, paste0(corename(expr_subset), "_zero.fasta")),
         outdir = fastadir, zero = "-"
         )
 
     iqtrees(
-        c(expr_fasta, expr_subset_fasta, expr_zero),
+        c(expr_fasta, expr_subset_fasta, expr_zero_fasta),
         model = "ORDERED+ASC",
         bootstrap = 100, parallel = TRUE, nthreads = 16,
         outdir = file.path(treedir, "ML")

@@ -5,7 +5,7 @@
 #' liver metastasis-specific targets in a patient with small intestinal neuroendocrine cancer"
 #' Cold Spring Harb Mol Case Stud
 import::from("src/sra.r", "get_srr_samples", "srr_download_sample")
-import::from("src/utils.r", "merge_files", "file_sub")
+import::from("src/utils.r", "merge_files", "file_sub", "fasta2stats")
 import::from("phyloRNA",
     "cellranger_count", "bamtagregex",
     "gatk_prepare", "gatk_MergeSamFiles",
@@ -223,7 +223,10 @@ snv = function(){
     all_fasta = file.path(outdir, "snv", "all.fasta")
 
     vcm2fasta(vcm, cancer_fasta, cancer_names)
+    fasta2stats(cancer_fasta, unknown="N")
+
     vcm2fasta(vcm, all_fasta, all_names)
+    fasta2stats(all_fasta, unknown="N")
 
     # Run phylogenetic analyses
     fasta = c(cancer_fasta, all_fasta)

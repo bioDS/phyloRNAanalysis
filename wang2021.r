@@ -7,9 +7,9 @@ import::from("src/sra.r", "get_srr_samples", "srr_download_sample")
 import::from("src/star.r", "STAR")
 import::from("src/snv.r", "detect_snv")
 import::from("src/expr.r", "expr2fasta")
-import::from("src/iqtree.r", "iqtree")
-import::from("src/beast.r", "beast")
-import::from("src/utils.r", "vcm2fasta")
+import::from("src/iqtree.r", "iqtrees")
+import::from("src/beast.r", "beasts")
+import::from("src/utils.r", "vcm2fasta", "fasta2stats")
 import::from("phyloRNA", "gatk_prepare", "abspath")
 import::from("parallel", "mcMap")
 
@@ -61,6 +61,7 @@ snv = function(){
     gc = lapply(names, grep, x=samples$name, value=TRUE)
     fasta = file.path(fastadir, paste0(names, ".fasta"))
     mcMap(vcm2fasta, vcm, fasta, gc, mc.cores=n)    
+    fasta2stats(fasta, unknown="N")
 
     # run IQtree
     iqtrees(fasta, "TEST", outdir=file.path(treedir, "ML"), mc.cores=n)
