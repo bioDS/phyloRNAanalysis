@@ -95,7 +95,7 @@ main = function(){
 
     snv_subset = filter_snv(vcm=vcm, selection=selection, prefix="snv_subset",
                             outdir=tabdir)
-    snv_subset_fasta = table2fasta(snv, outdir=fastadir)
+    snv_subset_fasta = table2fasta(snv_subset, outdir=fastadir)
     fasta2stats(snv_subset_fasta, unknown="N")
 
     iqtrees(
