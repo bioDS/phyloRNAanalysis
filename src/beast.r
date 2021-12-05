@@ -62,7 +62,7 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
     }
 
 
-beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, param=list()){
+beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, param=list(), mc.cores=1){
     if(is.null(outdir))
         outdir = "."
     mkdir(outdir)
@@ -75,6 +75,6 @@ beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, param=lis
         nthreads = nthreads,
         burnin = burnin,
         param = param,
-        mc.core = mc.core
+        mc.cores = mc.cores
         )
     }
