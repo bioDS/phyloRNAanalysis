@@ -10,7 +10,7 @@ import::from("phyloRNA",
     "cellranger_count", "bamtagregex",
     "gatk_prepare", "gatk_MergeSamFiles",
     "expr_read10x", "expr_merge",
-    "mkdir", "read_fasta"
+    "mkdir", "read_fasta", "all_files_exist"
     )
 import::from("src/expr.r", "process_expression", "expr2fasta")
 import::from("src/snv.r", "detect_snv")
@@ -73,7 +73,7 @@ expr = function(){
     iqtrees(
         c(all_fasta, cancer_fasta),
         model = "ORDERED+ASC", 
-        outdir = file.path(outdir, "trees", "ML")
+        outdir = file.path(outdir, "trees", "ML"),
         mc.cores=2
         )
     }
@@ -85,40 +85,40 @@ expr = function(){
 replicate_rao = function(primary_dir, metastasis_dir, umap_file, cell_file){
     primary = Seurat::Read10X(primary_dir, strip.suffix=TRUE)
     primary = Seurat::CreateSeuratObject(counts=primary, project="primary")
-    primary = RenameCells(primary, new.names = paste0(colnames(primary), "-pr"))
+    primary = Seurat::RenameCells(primary, new.names = paste0(colnames(primary), "-pr"))
 
     metastasis =  Seurat::Read10X(metastasis_dir, strip.suffix=TRUE)
     metastasis = Seurat::CreateSeuratObject(counts=metastasis, project="metastasis")
-    metastasis = RenameCells(metastasis, new.names = paste0(colnames(metastasis), "-met"))
+    metastasis = Seurat::RenameCells(metastasis, new.names = paste0(colnames(metastasis), "-met"))
 
     # Prepare data for integration: keep only cells with more than 500 genes
     primary = subset(primary, subset = nFeature_RNA > 500)
-    primary = NormalizeData(primary, verbose = FALSE)
-    primary = FindVariableFeatures(primary, selection.method = "vst", nfeatures = 2000)
+    primary = Seurat::NormalizeData(primary, verbose = FALSE)
+    primary = Seurat::FindVariableFeatures(primary, selection.method = "vst", nfeatures = 2000)
     primary$status = "Primary"
 
     metastasis = subset(metastasis, subset = nFeature_RNA > 500)
-    metastasis = NormalizeData(metastasis, verbose = FALSE)
-    metastasis = FindVariableFeatures(metastasis, selection.method = "vst", nfeatures = 2000)
+    metastasis = Seurat::NormalizeData(metastasis, verbose = FALSE)
+    metastasis = Seurat::FindVariableFeatures(metastasis, selection.method = "vst", nfeatures = 2000)
     metastasis$status = "Metastatic"
 
     # Find anchors (shared cells types) and integrate the data along the anchors
-    anchors = FindIntegrationAnchors(list(primary, metastasis), dims=1:20)
-    combined = IntegrateData(anchors=anchors, dims=1:20)
-    DefaultAssay(combined) = "integrated"
+    anchors = Seurat::FindIntegrationAnchors(list(primary, metastasis), dims=1:20)
+    combined = Seurat::IntegrateData(anchors=anchors, dims=1:20)
+    Seurat::DefaultAssay(combined) = "integrated"
 
     # Run the standard workflow for visualization and clustering
-    combined = ScaleData(combined, verbose = FALSE)
-    combined = RunPCA(combined, npcs = 30, verbose = FALSE)
+    combined = Seurat::ScaleData(combined, verbose = FALSE)
+    combined = Seurat::RunPCA(combined, npcs = 30, verbose = FALSE)
 
     # t-SNE and Clustering
-    combined = RunUMAP(combined, reduction = "pca", dims = 1:20)
-    combined = FindNeighbors(combined, reduction = "pca", dims = 1:20)
-    combined = FindClusters(combined, resolution = 0.5)
+    combined = Seurat::RunUMAP(combined, reduction = "pca", dims = 1:20)
+    combined = Seurat::FindNeighbors(combined, reduction = "pca", dims = 1:20)
+    combined = Seurat::FindClusters(combined, resolution = 0.5)
 
     # Plots
     pdf(umap_file)
-    DimPlot(object = combined, reduction = "umap", split.by = "status", label=TRUE, label.size=5)
+    Seurat::DimPlot(object = combined, reduction = "umap", split.by = "status", label=TRUE, label.size=5)
     invisible(dev.off())
 
     # Write down cell lists
@@ -150,7 +150,7 @@ snv = function(){
     cellranger_mkref(reference, annotation, refdir, nthreads=8)
 
     # get samples
-    samples = get_srr_samples(gse, save=file.path(outdir, "samples.rds")
+    samples = get_srr_samples(gse, save=file.path(outdir, "samples.rds"))
     
     # construct name from samples
     samples$names = strsplit(samples$name, split=" ", fixed=TRUE) %>% sapply(getElement, 1)
@@ -230,7 +230,7 @@ snv = function(){
 
     # Run phylogenetic analyses
     fasta = c(cancer_fasta, all_fasta)
-    iqtrees(fasta, "TEST" outdir=file.path(treedir, "ML"), mc.cores=2)
+    iqtrees(fasta, "TEST", outdir=file.path(treedir, "ML"), mc.cores=2)
     template = file.path("templates", "BDStrictGtr.xml")
     beasts(fasta, template, outdir=file.path(treedir, "BI"), mc.cores=2)
     }
@@ -284,7 +284,7 @@ select_pattern = function(x, pattern, n=NULL){
     if(is.null(n))
         return(y)
 
-    n = min(n, length(y)
+    n = min(n, length(y))
     y[seq_len(n)]
     }
 
