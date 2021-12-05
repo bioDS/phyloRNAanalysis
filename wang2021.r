@@ -6,11 +6,11 @@
 import::from("src/sra.r", "get_srr_samples", "srr_download_sample")
 import::from("src/star.r", "STAR")
 import::from("src/snv.r", "detect_snv")
-import::from("src/expr.r", "process_expression")
+import::from("src/expr.r", "expr2fasta")
 import::from("src/iqtree.r", "iqtree")
 import::from("src/beast.r", "beast")
-import::from("src/utils.r", "vcm2fasta", "mdensity")
-import::from("phyloRNA", "gatk_prepare", "abspath", "remove_constant", "tab2seq", "write_fasta")
+import::from("src/utils.r", "vcm2fasta")
+import::from("phyloRNA", "gatk_prepare", "abspath")
 import::from("parallel", "mcMap")
 
 main = function(){
@@ -68,7 +68,6 @@ snv = function(){
     # run BEAST
     template = file.path("templates", "BDStrictGtr.xml")
     beasts(fasta, template, outdir=file.path(treedir, "BI"), mc.cores=n)
-    mcMap(beast, fasta, template, mldir, mc.cores=n)
     }
 
 
@@ -89,43 +88,12 @@ expr = function(){
     n = length(count_matrix)
 
     fasta = file.path(fastadir, paste0(names(count_matrix), ".fasta"))
-    Map(exp2fasta, count_matrix, fasta, summary=TRUE)
+    Map(expr2fasta, count_matrix, fasta, summary=TRUE)
 
     # Run phylogenetic analyses
     iqtrees(fasta, "ORDERED+ASC", outdir=file.path(treedir, "ML"), mc.cores=n)
+    template = file.path("templates", "BDStrictOrdinal.xml")
     beasts(fasta, template, outdir=file.path(treedir, "BI"), mc.cores=n)
-    }
-
-
-exp2fasta = function(x, fasta, unknown="-", summary=FALSE){
-    data = press_expression(x, hdi, trim=TRUE, unknown=unknown)
-    data = remove_constant(data, margin=1, unknown=unknown)
-    seq = tab2seq(data, margin=2)
-
-    write_fasta(seq, fasta)
-
-    if(isTRUE(summary))
-        summary = file.path(basename(fasta), paste0(corename(fasta), "_summary.txt"))
-    if(is.character(summary))
-        count_matrix_summary(data, name=corename(fasta), file=summary)
-    }
-
-
-count_matrix_summary = function(data, name=NULL, file=NULL){
-    text = paste0(
-        "Sequences: ", ncol(data), "\n",
-        "Sites: ", nrow(data), "\n",
-        "Unique patterns: ", nrow(unique.matrix(data, MARGIN=1)), "\n",
-        "Data density: ", mdensity(data, empty="-")
-        )
-
-    if(!is.null(name))
-        text = paste0("Name: ", name[1], "\n", text)
-
-    if(!is.null(file))
-        writeLines(text, file)
-
-    return(invisible(text))
     }
 
 

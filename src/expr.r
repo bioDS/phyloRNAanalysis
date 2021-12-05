@@ -6,7 +6,8 @@ import::here("phyloRNA",
     "mkdir", "all_files_exist", "corename",
     "expr_merge", "expr_read10xh5",
     "expr_quality_filter", "expr_zero_to_na",
-    "expr_normalize", "expr_scale", "expr_discretize"
+    "expr_normalize", "expr_scale", "expr_discretize",
+    "remove_constant", "tab2seq", "write_fasta"
     )
 
 
@@ -111,6 +112,41 @@ process_expression = function(
     intervals = calculate_intervals(data, density=hdi, save=intervals)
     data = expr_discretize(data, intervals=intervals, unknown=unknown)
     data
+    }
+
+
+expr2fasta = function(x, fasta, unknown="-", summary=FALSE, process=TRUE){
+    data = x
+    if(process)
+        data = process_expression(x, hdi, trim=TRUE, unknown=unknown)
+
+    data = remove_constant(data, margin=1, unknown=unknown)
+    seq = tab2seq(data, margin=2)
+
+    write_fasta(seq, fasta)
+
+    if(isTRUE(summary))
+        summary = file.path(basename(fasta), paste0(corename(fasta), "_summary.txt"))
+    if(is.character(summary))
+        count_matrix_summary(data, name=corename(fasta), file=summary)
+    }
+
+
+count_matrix_summary = function(data, name=NULL, file=NULL){
+    text = paste0(
+        "Sequences: ", ncol(data), "\n",
+        "Sites: ", nrow(data), "\n",
+        "Unique patterns: ", nrow(unique.matrix(data, MARGIN=1)), "\n",
+        "Data density: ", mdensity(data, empty="-")
+        )
+
+    if(!is.null(name))
+        text = paste0("Name: ", name[1], "\n", text)
+
+    if(!is.null(file))
+        writeLines(text, file)
+
+    return(invisible(text))
     }
 
 
