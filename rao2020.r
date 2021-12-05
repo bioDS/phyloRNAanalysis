@@ -46,8 +46,10 @@ expr = function(){
     cell_file = file.path(outdir, "cells.txt")
     umap_file = file.path(outdir, "umap.pdf")
 
-    all_fasta = file.path(outdir, "fasta", "all.fasta")
-    cancer_fasta = file.path(outdir, "fasta", "cancer.fasta")
+    fastadir = file.path(outdir, "fasta")
+    all_fasta = file.path(fastadir, "all.fasta")
+    cancer_fasta = file.path(fastadir, "cancer.fasta")
+    mkdir(fastadir)
 
     # Download count matrix
     download_count_matrix(primary_url, primary_dir)
