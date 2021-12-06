@@ -7,7 +7,7 @@
 import::from("src/sra.r", "get_srr_samples", "srr_download_sample")
 import::from("src/utils.r", "merge_files", "file_sub", "fasta2stats")
 import::from("phyloRNA",
-    "cellranger_count", "bamtagregex",
+    "cellranger_count", "cellranger_mkref", "bamtagregex",
     "gatk_prepare", "gatk_MergeSamFiles",
     "expr_read10x", "expr_merge",
     "mkdir", "read_fasta", "all_files_exist"
