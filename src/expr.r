@@ -197,7 +197,7 @@ filter_expression = function(
 
     if(!is.null(selection) && is.null(density)){
         file = filename(prefix, outdir=outdir)
-        if(file.exsts(file))
+        if(file.exists(file))
             return(invisible(file))
 
         data = read_table(expr)
