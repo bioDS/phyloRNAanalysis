@@ -231,7 +231,7 @@ filter_expression = function(
         if(all_files_exist(files))
             return(invisible(files))
 
-        data = read_table(files)
+        data = read_table(expr)
         files = density_filtering(
             data,
             prefix = prefix,

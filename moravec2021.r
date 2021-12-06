@@ -126,7 +126,7 @@ main = function(){
     treedir = file.path(outdir, "expr", "tree")
     
     expr = filter_expression(
-        expr_processed$discretized, outdir = filterdir,
+        expr_preprocessed$discretized, outdir = filterdir,
         prefix = "expr", density = densities,
         ) 
     expr_subset = filter_expression(
