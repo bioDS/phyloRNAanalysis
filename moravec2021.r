@@ -126,12 +126,12 @@ main = function(){
     treedir = file.path(outdir, "expr", "tree")
     
     expr = filter_expression(
-        expr_preprocessed$discretized, outdir = filterdir,
-        prefix = "expr", density = densities,
-        ) 
+        expr_preprocessed$discretized, prefix = "expr",
+        outdir = filterdir, density = densities
+        )
     expr_subset = filter_expression(
-        expr_preprocessed$discretized, filterdir,
-        prefix = "expr_subset", selection = selection,
+        expr_preprocessed$discretized, prefix = "expr_subset",
+        outdir = filterdir, selection = selection
         )
 
     expr_fasta = table2fasta(expr, outdir=fastadir)
