@@ -162,6 +162,7 @@ snv = function(){
     mcMap(srr_download_sample, samples$srr, samples$name, fastqdir, mc.cores=ncores)
 
     # map and demultiplex
+    mkdir(mapdir)
     outputs = mcMap(
         cellranger_count,
         id = samples$name, sample = samples$name,
