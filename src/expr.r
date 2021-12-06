@@ -2,6 +2,7 @@
 #'
 #' Functions for processing 10x expression data
 import::here("utils.r", "filename", "num2char", "mdensity", "write_table", "read_table")
+import::here("filter.r", "density_filtering", "subset_filtering")
 import::here("phyloRNA",
     "mkdir", "all_files_exist", "corename",
     "expr_merge", "expr_read10xh5",
