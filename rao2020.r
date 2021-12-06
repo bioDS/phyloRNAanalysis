@@ -155,7 +155,7 @@ snv = function(){
     samples = get_srr_samples(gse, save=file.path(outdir, "samples.rds"))
     
     # construct name from samples
-    samples$names = strsplit(samples$name, split=" ", fixed=TRUE) %>% sapply(getElement, 1)
+    samples$name = strsplit(samples$name, split=" ", fixed=TRUE) %>% sapply(getElement, 1)
     
     # download the sequences in parallel (fastq-dump and prefetch are slow)
     ncores = max(nrow(samples), 16)
