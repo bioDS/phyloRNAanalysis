@@ -127,7 +127,7 @@ main = function(){
     
     expr = filter_expression(
         expr_processed$discretized, outdir = filterdir,
-        prefix = "expr", densities = densities,
+        prefix = "expr", density = densities,
         ) 
     expr_subset = filter_expression(
         expr_preprocessed$discretized, filterdir,
