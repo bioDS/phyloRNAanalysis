@@ -146,7 +146,14 @@ main = function(){
         )
 
     iqtrees(
-        c(expr_fasta, expr_subset_fasta, expr_zero_fasta),
+        expr_fasta,
+        model = "ORDERED+ASC",
+        outdir = file.path(treedir, "ML"),
+        mc.cores = length(expr_fasta)
+        )
+
+    iqtrees(
+        c(expr_subset_fasta, expr_zero_fasta),
         model = "ORDERED+ASC",
         bootstrap = 100, parallel = TRUE, nthreads = 16,
         outdir = file.path(treedir, "ML")
