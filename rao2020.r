@@ -173,10 +173,10 @@ snv = function(){
 
     # Preproces
     bam_aligned = sapply(outputs, getElement, "bam")
-    bam_prepared = file.path(mapdir, samples$name, ".bam")
-
+    bam_prepared = file.path(mapdir, paste0(samples$name, ".bam"))
+    
     barcodes_aligned = sapply(outputs, getElement, "barcodes")
-    barcodes_prepared = file.path(mapdir, samples$name, ".txt")
+    barcodes_prepared = file.path(mapdir, paste0(samples$name, ".txt"))
 
     pattern = "-1$"
     replace = paste0("-", samples$name)
@@ -251,7 +251,7 @@ prepare_bam = function(input, output, reference, vcf, barcodes, pattern, replace
         vcf = vcf,
         barcodes = barcodes
         )
-    bamtagregex(bam_cleaned, bam_prepared, "CB", pattern, replace)
+    bamtagregex(intermediate, output, "CB", pattern, replace)
     file.remove(intermediate)
     }
 
