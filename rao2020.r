@@ -240,10 +240,10 @@ snv = function(){
 
 
 prepare_bam = function(input, output, reference, vcf, barcodes, pattern, replace){
-    if(file.exists(input))
+    if(file.exists(output))
         invisible(stop)
 
-    intedmediate = paste0(input, ".intedmediate")
+    intermediate = paste0(tools::file_path_sans_ext(input), ".intermediate.bam")
 
     gatk_prepare(
         input, intermediate,
