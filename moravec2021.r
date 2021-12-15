@@ -161,7 +161,7 @@ main = function(){
 
     beasts(expr_subset_fasta, outdir = file.path(treedir, "BI"),
            template = file.path("templates", "BDStrictOrdinal.xml"))
-    beasts(expr_zero, outdir = file.path(treedir, "BI"),
+    beasts(expr_zero_fasta, outdir = file.path(treedir, "BI"),
            template = file.path("templates", "BDStrictOrdinalZero.xml"))
     }
 
