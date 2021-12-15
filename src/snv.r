@@ -1,7 +1,9 @@
 #' snv.r
 #'
 #' Functions for snv identification and filtering
-
+import::here("utils.r", "filename", "num2char", "read_vcm")
+import::here("filter.r", "density_filtering", "subset_filtering")
+import::here("phyloRNA", "all_files_exist")
 
 #' Detect SNV for scRNAseq
 #'
@@ -22,16 +24,18 @@
 #' position
 detect_snv = function(
     bam, barcodes, reference,
+    normal=NULL, pon=NULL, germline=NULL,
     outdir=NULL, vcfdir=NULL, vcm=NULL,
     nthreads=16
     ){
     core = phyloRNA::corename(bam)
 
-    if(phyloRNA::is_nn(outdir))
+    # Set default parameters:
+    if(is.null(outdir))
         outdir = "snv"
-    if(phyloRNA::is_nn(vcfdir))
+    if(is.null(vcfdir))
         vcfdir = file.path(outdir, "vcf")
-    if(phyloRNA::is_nn(vcm))
+    if(is.null(vcm))
         vcm = file.path(outdir, paste0(core, ".vcm"))
 
     phyloRNA::mkdir(outdir)
@@ -39,7 +43,10 @@ detect_snv = function(
 
     vcf = file.path(outdir, paste0(core, ".vcf"))
 
-    phyloRNA::gatk_snv(bam, reference, vcf, vcfdir)
+    phyloRNA::gatk_snv(
+        bam, reference, vcf,
+        normal=normal, pon=pon, germline=germline,
+        outdir=vcfdir)
     phyloRNA::vcm(bam, vcf, barcodes, output=vcm, nthreads=nthreads)
 
     invisible(vcm)
@@ -81,33 +88,56 @@ preprocess_snv = function(
 #' @param density desired data density
 #' @param outdir an output directory
 #' @return a list of filtered files
-filter_snv = function(vcm, selection, density=0.5, outdir=NULL){
+filter_snv = function(vcm, prefix, selection=NULL, density=NULL, outdir=NULL){
     if(is.null(outdir))
         outdir = "."
     phyloRNA::mkdir(outdir)
 
-    prefix_filter = "snv"
-    prefix_subset = "snv_subset"
+    if(is.null(selection) && is.null(density))
+        stop("Either the selection or the density parameter must be specified.")
 
-    # create filenames and check for their existence
-    filter = density_filenames(outdir, prefix_filter, density)
-    subset = subset_filtering_filenames(outdir, prefix_subset, density)
-    result = list("filter" = filter, "subset" = subset)
-    if(all.files.exists(result))
-        return(invisible(result))
 
-    # using data.table due to a huge size of the dataset
-    data = data.table::fread(vcm, header=TRUE)
-    data = data[,-c(1:3)] # first three columns are not cells (chromosome, position and reference)
+    if(!is.null(selection) && is.null(density)){
+        file = filename(prefix, outdir=outdir)
+        if(file.exists(file))
+            return(invisible(file))
 
-    prefix = "snv"
-    filter = density_filtering(data, density=density, empty="N", outdir=outdir, prefix=prefix)
+        data = as.data.frame(read_vcm(vcm))
+        file = subset_filtering(
+            data,
+            prefix = prefix,
+            selection = selection,
+            empty = "N",
+            outdir = outdir
+            )
+        return(invisible(file))
+        }
 
-    prefix = "snv_subset"
-    subset = subset_filtering(
-        as.data.frame(data), selection=selection, density=density,
-        empty="N", outdir=outdir, prefix=prefix
-        )
-    
-    list("filter" = filter, "subset" = subset)
+
+    if(!is.null(selection) && !is.null(density)){
+        files = filename(prefix, num2char(density), outdir=outdir)
+        if(all_files_exist(files))
+            return(invisible(files))
+
+        data = as.data.frame(read_vcm(vcm))
+        files = subset_filtering(
+            data,
+            prefix = prefix,
+            selection = selection,
+            density = density,
+            empty = "N",
+            outdir = outdir
+            )
+        return(invisible(files))
+        }
+
+    if(is.null(selection)){
+        files = filename(prefix, num2char(density), outdir=outdir)
+        if(all_files_exist(files))
+            return(invisible(files))
+
+        data = as.data.frame(read_vcm(vcm))
+        files = density_filtering(data, prefix=prefix, density=density, empty="N", outdir=outdir)
+        return(invisible(files))
+        }
     }

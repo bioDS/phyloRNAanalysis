@@ -7,16 +7,26 @@
 # -- Dimension and the data density of each filtered dataset
 library("Matrix")
 library("data.table")
+import::here("utils.r", "mdensity", "read_vcm", "write_table", "is_empty")
 
-expr_h5_stats = function(h5, output){
-    names = phyloRNA::corename(h5)
+expr_h5_stats = function(h5, names=NULL, file=NULL){
+    if(is.null(names))
+        names = phyloRNA::corename(h5)
+
+    # Calculate stats for each dataset
     data = lapply(h5, phyloRNA::expr_read10xh5)
     stats = lapply(data, expr_h5_stats_dataset)
     names(stats) = names
+
+    # calculate stats for the merged dataset
     data = phyloRNA::expr_merge(data, names)
     stats = c(stats, "total"=list(expr_h5_stats_dataset(data)))
     table = do.call(rbind, stats)
-    write_table(table, output)
+
+    if(!is.null(file))
+        write_table(table, file)
+
+    return(invisible(table))
     }
 
 genes_per_cell = function(x){
@@ -45,9 +55,8 @@ expr_h5_stats_dataset = function(data){
     return(stats)
     }
 
-vcm_stats = function(vcm, output){
-    data = data.table::fread(vcm)
-    data = data[,-c(1:3)]
+vcm_stats = function(vcm, file=NULL){
+    data = read_vcm(vcm)
 
     empty_cells = colnames(data)[colSums(is_empty(data, "N")) == 0]
     stats = list(
@@ -59,7 +68,11 @@ vcm_stats = function(vcm, output){
         "divEmpty" = diversity(empty_cells)
         )
     stats = do.call(rbind, stats)
-    write_table(stats, output)
+
+    if(!is.null(file))
+        write_table(stats, file)
+
+    invisible(stats)
     }
 
 filtered_stats = function(files, empty, output){
@@ -71,6 +84,39 @@ filtered_stats = function(files, empty, output){
         }
     stats = do.call(rbind, stats)
     write_table(stats, output) 
+    }
+
+fasta_stats = function(fasta, stats=NULL, name=TRUE, unknown="N"){
+    if(is.null(stats))
+        stats = paste0(tools::file_path_sans_ext(fasta), ".txt")
+    if(length(fasta) != length(stats))
+        stop("fasta and stats vectors must have the same length")
+
+    if(isTRUE(name))
+        name = phyloRNA::corename(fasta)
+
+    n = length(fasta)
+    name = rep_len(name, n)
+    unknown = rep_len(unknown, n)
+
+    stats = list()
+    for(i in seq_along(fasta)){
+        seq = phyloRNA::read_fasta(fasta[i])
+        tab = phyloRNA::seq2tab(seq)
+
+        text = paste0(
+            "Sequences: ", nrow(tab), "\n",
+            "Sites: ", ncol(tab), "\n",
+            "Unique patterns: ", ncol(unique.matrix(tab, MARGIN=2)), "\n",
+            "Data density: ", mdensity(tab, empty=unknown[i]), "\n",
+            "Diversity: ", diversity(names(seq))
+            )
+        if(is.character(name))
+            text = paste0("Name: ", name[i], "\n", text)
+        stats[[i]] = text
+        }
+
+    stats
     }
 
 diversity_stats = function(files, output){

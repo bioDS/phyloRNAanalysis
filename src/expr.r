@@ -1,3 +1,17 @@
+#' expr.r
+#'
+#' Functions for processing 10x expression data
+import::here("utils.r", "filename", "num2char", "mdensity", "write_table", "read_table")
+import::here("filter.r", "density_filtering", "subset_filtering")
+import::here("phyloRNA",
+    "mkdir", "all_files_exist", "corename",
+    "expr_merge", "expr_read10xh5",
+    "expr_quality_filter", "expr_zero_to_na",
+    "expr_normalize", "expr_scale", "expr_discretize",
+    "remove_constant", "tab2seq", "write_fasta"
+    )
+
+
 #' Process 10X expression data
 #'
 #' This function will filter, scale, discretize and transform scRNAseq expression data
@@ -36,38 +50,104 @@ preprocess_expression = function(
         outdir = "."
     if(is.null(prefix))
         prefix = "data"
-    phyloRNA::mkdir(outdir)
+    mkdir(outdir)
 
     result = list(
         intervals = file.path(outdir, paste(prefix, "intervals", "txt", sep=".")),
         discretized = file.path(outdir, paste(prefix, "discretized", "txt", sep="."))
         )
 
-    if(all.files.exists(result))
+    if(all_files_exist(result))
         return(invisible(result))
 
-
     if(length(h5) > 1){
-        names = phyloRNA::corename(h5)
-        data = lapply(h5, phyloRNA::expr_read10xh5)
-        data = phyloRNA::expr_merge(data, names)
+        names = corename(h5)
+        data = lapply(h5, expr_read10xh5)
+        data = expr_merge(data, names)
         } else {
-        data = phyloRNA::expr_read10xh5(h5)
+        data = expr_read10xh5(h5)
         }
 
+    data = process_expression(
+        data, hdi = hdi,
+        minGene = minGene, minUMI = minUMI,
+        trim = FALSE, normalize = normalize,
+        intervals = result$intervals
+        )
 
-    if(minGene > 0 && minUMI > 0)
-        data = phyloRNA::expr_quality_filter(data, minGene=minGene, minUMI=minUMI)
-    data = phyloRNA::expr_zero_to_na(data)
-    if(normalize)
-        data = phyloRNA::expr_normalize(data)
-    data = phyloRNA::expr_scale(data)
-
-    intervals = calculate_intervals(data, density=hdi, save=result$intervals)
-    discretized = phyloRNA::expr_discretize(data, intervals=intervals, unknown="-")
-    write_table(discretized, result$discretized)
+    write_table(data, result$discretized)
 
     return(invisible(result))
+    }
+
+
+#' Process expression data
+#'
+#' This function simplifies standard expression data processing, such as quality filtering, scaling,
+#' normalization and discretization.
+#'
+#' @param data an expression matrix
+#' @param hdi **optional** a highest density intervals for discretization
+#' @param minGene **optional** a minimum amount of represented genes per cell
+#' @param minUMI **optional** a minimum amount of total UMI (or count) per cell
+#' @param trim **optional** trim empty genes after filtering
+#' @param normalize **optional** perform normalization after rescaling
+#' @param intervals **optional** a file path to save discretization intervals into file
+#' @param unknown **optional** a symbol representing unknown data
+#' @return scaled, filtered and discretized count matrix
+process_expression = function(
+    data, hdi = c(0.6, 0.9),
+    minGene = 0, minUMI = 0,
+    trim = FALSE, normalize = FALSE,
+    intervals = FALSE, unknown = "-"
+    ){
+    if(minGene > 0 || minUMI > 0 || trim)
+        data = expr_quality_filter(data, minGene, minUMI, trim)
+
+    data = expr_zero_to_na(data)
+
+    if(normalize)
+        data = expr_normalize(data)
+
+    data = expr_scale(data)
+    intervals = calculate_intervals(data, density=hdi, save=intervals)
+    data = expr_discretize(data, intervals=intervals, unknown=unknown)
+    data
+    }
+
+
+expr2fasta = function(x, fasta, unknown="-", summary=FALSE, process=TRUE, hdi=c(0.6, 0.9)){
+    data = x
+    if(process)
+        data = process_expression(x, hdi, trim=TRUE, unknown=unknown)
+
+    data = remove_constant(data, margin=1, unknown=unknown)
+    seq = tab2seq(data, margin=2)
+
+    write_fasta(seq, fasta)
+
+    if(isTRUE(summary))
+        summary = file.path(dirname(fasta), paste0(corename(fasta), "_summary.txt"))
+    if(is.character(summary))
+        count_matrix_summary(data, name=corename(fasta), file=summary)
+    }
+
+
+count_matrix_summary = function(data, name=NULL, file=NULL){
+    text = paste0(
+        "Sequences: ", ncol(data), "\n",
+        "Sites: ", nrow(data), "\n",
+        "Unique patterns: ", nrow(unique.matrix(data, MARGIN=1)), "\n",
+        "Data density: ", mdensity(data, empty="-")
+        )
+
+    if(!is.null(name))
+        text = paste0("Name: ", name[1], "\n", text)
+
+    if(!is.null(file))
+        writeLines(text, file)
+
+    return(invisible(text))
     }
 
 
@@ -105,27 +185,61 @@ calculate_intervals = function(data, density=c(0.6,0.9), save=FALSE){
 #' @param density desired data density
 #' @param outdir an output directory
 #' @return a list of filtered files
-filter_expression = function(expr, selection, density=0.5, outdir=NULL){
+filter_expression = function(
+    expr, prefix, selection=NULL, density=NULL, outdir=NULL
+    ){
     if(is.null(outdir))
         outdir = "."
     mkdir(outdir)
 
-    prefix = "expr"
-    prefix_subset = "expr_subset"
-    result = list(
-        "filter" = density_filenames(outdir, prefix, density),
-        "subset" = subset_filtering_filenames(outdir, prefix_subset, density)
-        )
+    if(is.null(selection) && is.null(density))
+        stop("Either the selection or the density parameter must be specified.")
 
-    if(all.files.exists(result))
-        return(invisible(result))
+    if(!is.null(selection) && is.null(density)){
+        file = filename(prefix, outdir=outdir)
+        if(file.exists(file))
+            return(invisible(file))
 
-    data = read_table(expr)
-    filter = density_filtering(data, density=density, empty="-", outdir=outdir, prefix=prefix)
-    subset = subset_filtering(
-        data, selection=selection, density=density,
-        empty="-", outdir=outdir, prefix=prefix_subset
-        )
+        data = read_table(expr)
+        file = subset_filtering(
+            data,
+            prefix = prefix,
+            selection = selection,
+            empty = "-",
+            outdir = outdir
+            )
+        return(invisible(file))
+        }
 
-    list("filter" = filter, "subset" = subset)
+    if(!is.null(selection) && !is.null(density)){
+        files = filename(prefix, num2char(density), outdir=outdir)
+        if(all_files_exist(files))
+            return(invisible(files))
+        data = read_table(expr)
+        files = subset_filtering(
+            data,
+            prefix = prefix,
+            selection = selection,
+            density = density,
+            empty = "-",
+            outdir = outdir,
+            )
+        return(invisible(files))
+        }
+
+    if(is.null(selection)){
+        files = filename(prefix, num2char(density), outdir=outdir)
+        if(all_files_exist(files))
+            return(invisible(files))
+
+        data = read_table(expr)
+        files = density_filtering(
+            data,
+            prefix = prefix,
+            density = density,
+            empty = "-",
+            outdir = outdir
+            )
+        return(invisible(files))
+        }
     }

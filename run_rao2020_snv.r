@@ -1,10 +1,9 @@
 import::from("src/sra.r", "sra_download", "get_srr_samples")
-import::from("src/utils.r", "all.files.exists")
 import::from("src/snv.r", "preprocess_snv")
 import::from("src/prepare.r", "merge_files")
 import::from("src/iqtree.r", "iqtree")
 import::from("magrittr", "%>%")
-import::from("phyloRNA", "tab2seq", "write_fasta")
+import::from("phyloRNA", "tab2seq", "write_fasta", "all_files_exist")
 import::from("parallel", "mcmapply")
 
 
@@ -20,7 +19,7 @@ main = function(){
 
     # required reference files:
     reference = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
-    annotation = "referencey/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
+    annotation = "reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gtf"
     vcf = "reference/00-common_all.vcf.gz"
 
     # create directories
@@ -165,13 +164,13 @@ srr_download_sample = function(srr, name, outdir){
         paste0(sample_name, "_S1_L001_", read_types, "_001.fastq.gz")
         )
 
-    if(all.files.exists(cellranger_files))
+    if(all_files_exist(cellranger_files))
         return(sample_name)
     
     # Download srr files and check if they exist/were downloaded correctly
     srr_files = file.path(outdir, paste0(srr, "_", 1:3, ".fastq.gz"))
     sra_download(srr, outdir)
-    if(!all.files.exists(srr_files))
+    if(!all_files_exist(srr_files))
         stop("ERROR: not all files exists.\\n", "Files: ", files)
     
     file.rename(srr_files, cellranger_files)

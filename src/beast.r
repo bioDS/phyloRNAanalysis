@@ -1,6 +1,9 @@
 #' beast.r
 #'
 #' Functions for phylogenetic reconstruction with beast
+import::here("parallel", "mcMap")
+import::here("phyloRNA", "mkdir", "corename")
+import::here("beter", "process_template")
 
 #' Run BEAST analysis
 #'
@@ -10,12 +13,15 @@
 #' @param nthreads a number of threads to run the BEAST on
 #' @param burnin burnin percentages
 #' @param params an additional list of parameters
-beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=list()){
+beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=NULL){
     if(is.null(outdir))
         outdir = "."
-    phyloRNA::mkdir(outdir)
+    mkdir(outdir)
 
-    prefix = beter:::basename_sans_ext(fasta)
+    if(is.null(params))
+        params = list()
+
+    prefix = corename(fasta)
 
     beastxml = file.path(outdir, paste0(prefix, ".xml"))
     trace = file.path(outdir, paste0(prefix, ".trace"))
@@ -24,7 +30,7 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
     tree = file.path(outdir, paste0(prefix, ".tree"))
 
     if(!file.exists(beastxml))
-        beter::process_template(
+        process_template(
             template,
             beastxml,
             alignment = fasta,
@@ -59,19 +65,22 @@ beast = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=lis
     }
 
 
-beasts = function(fastas, template, outdir=NULL, nthreads=2, burnin=20, param=list()){
+beasts = function(fasta, template, outdir=NULL, nthreads=2, burnin=20, params=NULL, mc.cores=1){
     if(is.null(outdir))
         outdir = "."
-    phyloRNA::mkdir(outdir)
+    mkdir(outdir)
 
-    for(fasta in fastas){
-        beast(
-            fasta = fasta,
-            template = template,
-            outdir = file.path(outdir, beter:::basename_sans_ext(fasta)),
-            nthreads = nthreads,
-            burnin = burnin,
-            param = param
-            )
-        }
+    if(is.null(params))
+        params = list(list())
+
+    mcMap(
+        beast,
+        fasta = fasta,
+        template = template,
+        outdir = file.path(outdir, corename(fasta)),
+        nthreads = nthreads,
+        burnin = burnin,
+        params = params,
+        mc.cores = mc.cores
+        )
     }

@@ -1,10 +1,9 @@
 import::from("src/sra.r", "sra_download", "get_srr_samples")
-import::from("src/utils.r", "all.files.exists")
 import::from("src/snv.r", "preprocess_snv")
 import::from("src/iqtree.r", "iqtree")
 import::from("src/beast.r", "beast")
 import::from("magrittr", "%>%")
-import::from("phyloRNA", "tab2seq", "write_fasta")
+import::from("phyloRNA", "tab2seq", "write_fasta", "all_files_exist")
 import::from("parallel", "mcmapply")
 
 
@@ -84,12 +83,12 @@ srr_download = function(gse, outdir){
 srr_download_sample = function(srr, name, outdir){
     fastq_files = file.path(outdir, paste0(name, ".fastq.gz"))
 
-    if(all.files.exists(fastq_files))
+    if(all_files_exist(fastq_files))
         return(name)
     
     srr_files = file.path(outdir, paste0(srr, "_", 1, ".fastq.gz"))
     sra_download(srr, outdir)
-    if(!all.files.exists(srr_files))
+    if(!all_files_exist(srr_files))
         stop("ERROR: not all files exists.\\n", "Files: ", files)
 
     file.rename(srr_files, fastq_files)
