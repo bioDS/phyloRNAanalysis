@@ -234,8 +234,8 @@ snv = function(){
     # Run phylogenetic analyses
     fasta = c(cancer_fasta, all_fasta)
     iqtrees(fasta, "TEST", outdir=file.path(treedir, "ML"), mc.cores=2)
-    template = file.path("templates", "BDStrictGtr.xml")
-    beasts(fasta, template, outdir=file.path(treedir, "BI"), mc.cores=2)
+    #template = file.path("templates", "BDStrictGtr.xml")
+    #beasts(fasta, template, outdir=file.path(treedir, "BI"), mc.cores=2)
     }
 
 
