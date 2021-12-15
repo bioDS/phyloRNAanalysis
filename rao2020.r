@@ -5,7 +5,7 @@
 #' liver metastasis-specific targets in a patient with small intestinal neuroendocrine cancer"
 #' Cold Spring Harb Mol Case Stud
 import::from("src/sra.r", "get_srr_samples", "srr_download_sample")
-import::from("src/utils.r", "merge_files", "file_sub", "fasta2stats")
+import::from("src/utils.r", "merge_files", "file_sub", "vcm2fasta", "fasta2stats")
 import::from("phyloRNA",
     "cellranger_count", "cellranger_mkref", "bamtagregex",
     "gatk_prepare", "gatk_MergeSamFiles",
@@ -196,8 +196,8 @@ snv = function(){
         barcodes_aligned,
         barcodes_prepared,
         pattern,
-        repalce = list(replace),
-        mc.cores=ncores
+        replace = replace,
+        mc.cores = ncores
         )
 
     # Merge bam and barcodes
@@ -213,8 +213,8 @@ snv = function(){
     vcm = detect_snv(bam, barcodes, reference, pon=pon, germline=germline, outdir=snvdir)
 
     # Create two datasets based on selected cells from expression analysis
-    expr_cancer_fasta = file.path(outdir, "expr", "cancer.fasta")
-    expr_all_fasta = file.path(outdir, "expr", "all.fasta")
+    expr_cancer_fasta = file.path(outdir, "expr", "fasta", "cancer.fasta")
+    expr_all_fasta = file.path(outdir, "expr", "fasta", "all.fasta")
     if(!all_files_exist(c(expr_cancer_fasta, expr_all_fasta)))
         stop("Run expression analysis first.")
 
@@ -222,8 +222,8 @@ snv = function(){
     all_names = get_names(expr_all_fasta)
 
     mkdir(fastadir)
-    cancer_fasta = file.path(outdir, "snv", "cancer.fasta")
-    all_fasta = file.path(outdir, "snv", "all.fasta")
+    cancer_fasta = file.path(fastadir, "cancer.fasta")
+    all_fasta = file.path(fastadir, "all.fasta")
 
     vcm2fasta(vcm, cancer_fasta, cancer_names)
     fasta2stats(cancer_fasta, unknown="N")
@@ -241,7 +241,7 @@ snv = function(){
 
 prepare_bam = function(input, output, reference, vcf, barcodes, pattern, replace){
     if(file.exists(output))
-        invisible(stop)
+        return(invisible())
 
     intermediate = paste0(tools::file_path_sans_ext(input), ".intermediate.bam")
 
