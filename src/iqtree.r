@@ -148,6 +148,11 @@ iqtree_par = function(
 
     # merge bootstrap files
     boottrees = file.path(outdir, paste0(core, ".boottrees"))
+    
+    # prevent appending trees to an existing file
+    if(file.exists(boottrees))
+        file.remove(boottrees)
+
     file.append(boottrees, unlist(trees))
 
     # calculate consensus tree from bootstrap trees
